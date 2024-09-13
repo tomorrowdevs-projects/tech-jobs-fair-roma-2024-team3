@@ -1,0 +1,17 @@
+.title {
+    @apply font-extrabold my-3 text-[2rem] text-center
+           2xl:text-[16rem] 2xl:fixed 2xl:bottom-0 2xl:z-0 2xl:rotate-[270deg]
+           2xl:w-96 2xl:-left-12 2xl:opacity-30 2xl:pointer-events-none
+}
+
+.page {
+    @apply max-w-screen-lg mx-auto pt-32 px-3 pb-32
+}
+
+.page-sm {
+    @apply max-w-sm mx-auto
+}
+
+.login-form {
+    @apply border border-gray-300 rounded-lg
+}
