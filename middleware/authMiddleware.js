@@ -11,4 +11,23 @@ function verifyToken(req, res, next) {
     }
 };
 
-module.exports = verifyToken;
+//Middleware per controllo formato mail
+function validateEmailMiddleware(req, res, next) {
+    const { email } = req.body;
+
+    if (!isValidEmail(email)) {
+        return res.status(400).json({ error: 'Invalid email format' });
+    }
+
+    next();
+}
+
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email.toLowerCase());
+}
+
+module.exports = {
+    verifyToken,
+    validateEmailMiddleware
+};  

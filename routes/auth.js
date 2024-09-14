@@ -4,12 +4,21 @@ const router = express.Router();
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { validateEmailMiddleware } = require('../middleware/authMiddleware');
+
 
 // User registration
-router.post('/signup', async (req, res) => {
+router.post('/signup', validateEmailMiddleware, async (req, res) => {
     try {
         const { email, password } = req.body;
         const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Controllo se email esiste giá
+        const existingUser = await User.findOne({ where: { email } });
+        if (existingUser) {
+            return res.status(409).json({ error: 'Email already in use' });
+        }
+
         const user = new User({ email, password: hashedPassword });
         await user.save();
         res.status(201).json({ message: 'User registered successfully' });
@@ -22,7 +31,7 @@ router.post('/signup', async (req, res) => {
 router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
-        const user = await User.findOne({ where: {email} });
+        const user = await User.findOne({ where: { email } });
         if (!user) {
             return res.status(401).json({ error: 'Authentication failed' });
         }
@@ -39,5 +48,6 @@ router.post('/login', async (req, res) => {
         res.status(500).json({ error: 'Login failed' });
     }
 });
+
 
 module.exports = router;
