@@ -66,66 +66,69 @@ const Home = () => {
     }, [navigate, user])
 
     return (
-        <div className="p-6 min-h-screen flex flex-col w-full">
-            <p className="text-[50px] font-semibold">Ciao, {user?.username} &#128075;</p>
-            <div className="flex justify-center items-center flex-col gap-2 mt-4">
-                <p>{startDate.toLocaleString('default', { month: 'long' })}</p>
-                <div className="flex items-center justify-center w-full space-x-2">
-                    <button
-                        onClick={handlePrev}
-                        className="text-xl w-[40px] h-[40px] bg-gray-200 rounded-full hover:bg-gray-300 text-center"
-                    >
-                        ←
-                    </button>
-                    <div className="flex">
-                        {dates.map((date, index) => {
-                            const isToday = date.toDateString() === new Date().toDateString()
-                            return (
-                                <div key={index} className={`text-center p-4 rounded-full ${isToday ? "bg-blue-500 text-white" : "text-gray-700"} `}>
-                                    <div className="font-bold ">{date.getDate()}</div>
-                                    <div className="text-xs">{date.toLocaleString('default', { weekday: 'short' })}</div>
-                                </div>
-                            )
-                        })}
-                    </div>
-                    <button
-                        onClick={handleNext}
-                        className="text-xl w-[40px] h-[40px] bg-gray-200 rounded-full hover:bg-gray-300"
-                    >
-                        →
-                    </button>
-                </div>
-            </div>
-            <div className="mt-8">
-                {currentTasks.map((t) => {
-                    return (
-                        <div key={t.id} className={`${t.isDone ? "line-through bg-blue-500 text-white" : "bg-white border-blue-500 text-blue-500"} font-medium p-4 w-full border-[1px] rounded-md shadow-lg mt-4`}>
-                            <p>{t.name}</p>
+        <div className="flex-1 flex justify-center items-center">
+            <div className="p-6 min-h-screen max-w-[600px] flex flex-col w-full border-x-[1px] border-gray-200">
+                <p className="text-[50px] font-semibold">Ciao, {user?.username} &#128075;</p>
+                <div className="flex justify-center items-center flex-col gap-2 mt-4">
+                    <p>{startDate.toLocaleString('default', { month: 'long' })}</p>
+                    <div className="flex items-center justify-center w-full space-x-2">
+                        <button
+                            onClick={handlePrev}
+                            className="text-xl w-[40px] h-[40px] bg-gray-200 rounded-full hover:bg-gray-300 text-center"
+                        >
+                            ←
+                        </button>
+                        <div className="flex">
+                            {dates.map((date, index) => {
+                                const isToday = date.toDateString() === new Date().toDateString()
+                                return (
+                                    <div key={index} className={`text-center p-4 rounded-full ${isToday ? "bg-blue-500 text-white" : "text-gray-700"} `}>
+                                        <div className="font-bold ">{date.getDate()}</div>
+                                        <div className="text-xs">{date.toLocaleString('default', { weekday: 'short' })}</div>
+                                    </div>
+                                )
+                            })}
                         </div>
-                    )
-                })}
-            </div>
+                        <button
+                            onClick={handleNext}
+                            className="text-xl w-[40px] h-[40px] bg-gray-200 rounded-full hover:bg-gray-300"
+                        >
+                            →
+                        </button>
+                    </div>
+                </div>
+                <div className="mt-8">
+                    {currentTasks.map((t) => {
+                        return (
+                            <div key={t.id} className={`${t.isDone ? "line-through bg-blue-500 text-white" : "bg-white border-blue-500 text-blue-500"} font-medium p-4 w-full border-[1px] rounded-md shadow-lg mt-4`}>
+                                <p>{t.name}</p>
+                            </div>
+                        )
+                    })}
+                </div>
 
-            <button
-                type="button"
-                onClick={() => {
-                    // setIsOpen((prev) => !prev)
-                    setCurrentTasks((prev) => ([...prev, {
-                        id: 5,
-                        name: "Test",
-                        isDone: false
-                    }]))
-                }}
-                className={`lg:hidden fixed flex justify-center items-center shadow-xl bottom-6 right-6 rounded-full
+                <button
+                    type="button"
+                    onClick={() => {
+                        // setIsOpen((prev) => !prev)
+                        setCurrentTasks((prev) => ([...prev, {
+                            id: 5,
+                            name: "Test",
+                            isDone: false
+                        }]))
+                    }}
+                    className={`lg:hidden fixed flex justify-center items-center shadow-xl bottom-6 right-6 rounded-full
                 ${isOpen
-                        ? "bg-red-500 transition duration-300 ease-in-out transform rotate-45"
-                        : "bg-blue-500 transition duration-300 ease-in-out transform rotate-0"
-                    } 
+                            ? "bg-red-500 transition duration-300 ease-in-out transform rotate-45"
+                            : "bg-blue-500 transition duration-300 ease-in-out transform rotate-0"
+                        } 
                 text-white border z-20 w-[70px] h-[70px]`}
-            >
-                <FiPlus size={35} />
-            </button>
+                >
+                    <FiPlus size={35} />
+                </button>
+            </div>
         </div>
+
     )
 }
 
