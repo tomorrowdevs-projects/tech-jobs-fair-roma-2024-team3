@@ -13,19 +13,23 @@ Lo sviluppo si completerà **Venerdi 20 Settembre**, quando tutti i team termine
 #### Ore 11.00: Meeting di ritrovo su [link zoom] e saluti
 
 #### Fase 1: brainstorming progetto
+
 In call con tutti i team, verranno raccolti i requisiti attraverso una sessione di domande e risposte.
 L'obiettivo di questa fase è trasmettere un metodo di approccio ai progetti.
 
-Terminata la prima fase, i team inizieranno a lavorare in modo indipendente, comunicando attraverso i gruppi Telegram che sono stati creati nei giorni precedenti. 
+Terminata la prima fase, i team inizieranno a lavorare in modo indipendente, comunicando attraverso i gruppi Telegram che sono stati creati nei giorni precedenti.
 
 #### Fase 2: analisi e architettura
+
 Durante questa fase i team analizzeranno i requisiti, ed inizieranno a ragionare su un'architettura da dare al progetto, scegliendo anche quelle che sarà lo stack tecnologico, sulla base della loro stessa analisi.
 Quest'attività è volutamente lasciata in capo ai team, che saranno comunque seguiti, poichè è parte integrante delle dinamiche lavorative quando ci si approccia a nuovi progetti.
 
 #### Fase 3: Sviluppo
+
 I team svilupperanno la loro soluzione, concentrandosi sulle funzionalità principali, definite e prioritizzate in fase di analisi.
 
 ### Dal 13 al 19 Settembre
+
 I team continueranno a lavorare in modo indipendente sui loro progetti, cercando di implementare più funzionalità possibili.
 
 ### Daily Review
@@ -35,6 +39,7 @@ Ogni giorno, a partire dal 14 Settembre, ci sarà un'attività di review con ogn
 ### Giovedi 19 Settembre, ore 17: Meeting finale su [link zoom] e saluti
 
 ### Venerdi 20 Settembre: TECH JOBS FAIR!
+
 Ogni team presenterà il proprio progetto fisicamente alla Tech Jobs Fair di Roma!
 
 # Requisito tecnico
@@ -42,9 +47,11 @@ Ogni team presenterà il proprio progetto fisicamente alla Tech Jobs Fair di Rom
 ## HABIT TRACKER
 
 ### Scopo del Progetto:
+
 Realizzare un'applicazione che permetta di tracciare le abitudini di una persona
 
 L'applicazione dovrà permettere di:
+
 - far accedere l'utente ad un'area protetta tramite autenticazione
 - definire le proprie abitudini (es bere 10 bicchieri d'acqua al giorno) e la frequenza
 - inviare notifiche periodiche in base alle abitudini definite
@@ -60,7 +67,6 @@ L'applicazione dovrà permettere di:
 - [ ] Notifiche del browser che avvisano la ricorrenza
 - [ ] Report sull'andamento, possibilità di coinvolgere altri utenti nelle abitudini, inviando loro notifiche via mail
 
-
 ### Alcuni consigli utili
 
 - conoscetevi nel team, come persone, esperienze e skil
@@ -69,4 +75,3 @@ L'applicazione dovrà permettere di:
 - suddividete i compiti nel team, in base a competenze e disponibilità
 - fatevi un calendario, sia per le disponibilità delle persone sia sugli obiettivi
 - fatevi un'idea di dove e come le persone presenti al fair potranno vedere il vostro lavoro (consiglio: decidete il prima possibile dove e come deployare il progetto, inizialmente anche solo con un hello world! in modo da avere un ambiente pronto e sempre aggiornato dove voi, i vostri compagni di squadra e i mentor, possano vedere l'as-is)
-
