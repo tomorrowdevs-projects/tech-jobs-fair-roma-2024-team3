@@ -17,6 +17,7 @@ const useAuth = () => {
             // $user.set(data)
             console.log(data)
             setIsLoading(false)
+            return data
         } catch (err) {
             setIsLoading(false)
             throw err
@@ -27,6 +28,7 @@ const useAuth = () => {
         setIsLoading(true)
         try {
             await SignUpRequest(user)
+            setIsLoading(false)
         } catch (err) {
             setIsLoading(false)
             console.log(err)

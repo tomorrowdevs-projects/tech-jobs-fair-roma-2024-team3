@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import useAuth from '../hooks/useAuth';
 import { LoginDetails, SignUpDetails } from '../types';
 import { z, ZodError } from 'zod';
@@ -46,14 +46,22 @@ const AuthScreen: React.FC = () => {
     const { login, signup, loading, setUser } = useAuth()
     const navigate = useNavigate()
 
+    useEffect(() => {
+        const token = localStorage.getItem("token")
+        if (token) {
+            setUser({ username: "Omar" })
+            navigate("/home")
+        }
+    }, [])
+
     const handleAuth = async () => {
         setAuthError(null)
         try {
             if (isLogin) {
                 LoginSchema.parse(loginDetails)
-                await login(loginDetails as LoginDetails)
+                const { data } = await login(loginDetails as LoginDetails)
                 setUser({ username: "Omar" })
-                localStorage.setItem("token", "test")
+                localStorage.setItem("token", data.token)
                 navigate("/home")
             } else {
                 SignUpSchema.parse(signUpDetails)
