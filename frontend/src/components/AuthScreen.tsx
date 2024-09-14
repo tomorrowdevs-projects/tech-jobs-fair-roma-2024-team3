@@ -7,16 +7,18 @@ import Spinner from './Spinner';
 import { useNavigate } from 'react-router-dom';
 
 const LoginSchema = z.object({
-    username: z.string()
-        .min(1, { message: "Username is required" }),
+    email: z.string()
+        .min(1, { message: "Email is required" })
+        .email("Email is invalid"),
     password: z.string()
         .min(1, { message: "Password is required" })
         .min(8, { message: "Password must be at least 8 characters long" }),
 });
 
 const SignUpSchema = z.object({
-    username: z.string()
-        .min(1, { message: "Username is required" }),
+    email: z.string()
+        .min(1, { message: "Email is required" })
+        .email("Email is invalid"),
     password: z
         .string()
         .min(1, { message: "Password is required" })
@@ -39,9 +41,9 @@ const SignUpSchema = z.object({
 const AuthScreen: React.FC = () => {
     const [isLogin, setIsLogin] = useState(true);
     const [authError, setAuthError] = useState<string | null>(null)
-    const [loginDetails, setLoginDetails] = useState<LoginDetails>({ username: "", password: "" })
-    const [signUpDetails, setSignUpDetails] = useState<SignUpDetails>({ username: "", password: "", confirmPassword: "" })
-    const { signup, loading, setUser } = useAuth()
+    const [loginDetails, setLoginDetails] = useState<LoginDetails>({ email: "", password: "" })
+    const [signUpDetails, setSignUpDetails] = useState<SignUpDetails>({ email: "", password: "", confirmPassword: "" })
+    const { login, signup, loading, setUser } = useAuth()
     const navigate = useNavigate()
 
     const handleAuth = async () => {
@@ -49,7 +51,7 @@ const AuthScreen: React.FC = () => {
         try {
             if (isLogin) {
                 LoginSchema.parse(loginDetails)
-                // await login(loginDetails as LoginDetails)
+                await login(loginDetails as LoginDetails)
                 setUser({ username: "Omar" })
                 localStorage.setItem("token", "test")
                 navigate("/home")
@@ -58,17 +60,17 @@ const AuthScreen: React.FC = () => {
                 await signup(signUpDetails as SignUpDetails)
                 setIsLogin(true)
             }
-            setLoginDetails({ username: "", password: "" })
-            setSignUpDetails({ username: "", password: "", confirmPassword: "" })
+            setLoginDetails({ email: "", password: "" })
+            setSignUpDetails({ email: "", password: "", confirmPassword: "" })
         } catch (err) {
             if (err instanceof ZodError) {
                 setAuthError(err.errors[0].message)
             } else if (err instanceof Error) {
-                if (err instanceof AxiosError) {
-                    setAuthError(err.status === 401 ? "Something went wrong" : "")
-                } else {
-                    setAuthError(err.message)
-                }
+                setAuthError(err.message)
+            } else if (err instanceof AxiosError) {
+                setAuthError(err.status === 401 ? "Something went wrong" : "")
+            } else {
+                setAuthError(err as string)
             }
         }
     }
@@ -98,14 +100,15 @@ const AuthScreen: React.FC = () => {
 
                 <div className="mb-4">
                     <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
-                        Username
+                        Email
                     </label>
                     <input
-                        id="username"
-                        name="username"
-                        value={isLogin ? loginDetails.username : signUpDetails.username}
+                        id="email"
+                        type='email'
+                        name="email"
+                        value={isLogin ? loginDetails.email : signUpDetails.email}
                         className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                        placeholder="Enter your username"
+                        placeholder="Enter your email"
                         onChange={(e) => handleInput(e.currentTarget.name, e.currentTarget.value)}
                     />
                 </div>

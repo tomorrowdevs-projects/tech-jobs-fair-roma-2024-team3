@@ -14,7 +14,8 @@ const useAuth = () => {
         setIsLoading(true)
         try {
             const { data } = await LoginRequest(user)
-            $user.set(data)
+            // $user.set(data)
+            console.log(data)
             setIsLoading(false)
         } catch (err) {
             setIsLoading(false)
@@ -24,8 +25,13 @@ const useAuth = () => {
 
     const signup = async (user: SignUpDetails) => {
         setIsLoading(true)
-        await SignUpRequest(user)
-        setIsLoading(false)
+        try {
+            await SignUpRequest(user)
+        } catch (err) {
+            setIsLoading(false)
+            console.log(err)
+            throw err
+        }
     }
 
     return {

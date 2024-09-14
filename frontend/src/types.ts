@@ -1,10 +1,10 @@
 export interface LoginDetails {
-    username: string
+    email: string
     password: string
 }
 
 export interface SignUpDetails {
-    username: string
+    email: string
     password: string
     confirmPassword: string
 }
