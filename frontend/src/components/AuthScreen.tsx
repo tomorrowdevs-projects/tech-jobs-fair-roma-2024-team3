@@ -59,9 +59,9 @@ const AuthScreen: React.FC = () => {
         try {
             if (isLogin) {
                 LoginSchema.parse(loginDetails)
-                const { data } = await login(loginDetails as LoginDetails)
+                const token = await login(loginDetails as LoginDetails)
                 setUser({ username: "Omar" })
-                localStorage.setItem("token", data.token)
+                localStorage.setItem("token", token)
                 navigate("/home")
             } else {
                 SignUpSchema.parse(signUpDetails)
