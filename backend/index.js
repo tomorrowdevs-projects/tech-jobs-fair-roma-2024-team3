@@ -7,7 +7,7 @@ const authRoutes = require('./routes/auth');
 const attivitaRoutes = require('./routes/attivita'); 
 
 const app = express();
-app.use(cors());
+app.use(cors({origin: ["http://localhost:5173", "https://tech-jobs-fair-roma-2024-team3.vercel.app"]}));
 app.use(express.json());
 
 app.get('/', (req, res) => {
