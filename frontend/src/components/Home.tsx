@@ -98,7 +98,13 @@ const Home = () => {
                 <div className="relative  min-h-screen max-w-[600px] flex flex-col w-full border-x-[1px] border-gray-200">
                     <div className="flex justify-between items-center w-full px-4 pt-4">
                         <p className="text-[40px] md:text-[50px] font-semibold">Ciao, {user?.name} &#128075;</p>
-                        <button onClick={logout} className="text-blue-500 p-1 border-2 border-blue-500 rounded-full">
+                        <button
+                            onClick={() => {
+                                logout()
+                                navigate("/")
+                            }}
+                            className="text-blue-500 p-1 border-2 border-blue-500 rounded-full"
+                        >
                             <IoMdLogOut size={30} />
                         </button>
                     </div>
