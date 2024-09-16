@@ -23,19 +23,24 @@ router.post("/signup", validateEmailMiddleware, isExistingEmailMiddleware, async
 // User login
 router.post("/login", async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ where: { email } });
-    if (!user) {
-      return res.status(401).json({ error: "Authentication failed" });
+    const { email, password, token } = req.body;
+    let user;
+    if (token) {
+      user = jwt.verify(token, "hackathon-rome-2024");
+    } else {
+      user = await User.findOne({ where: { email } });
+      if (!user) {
+        return res.status(401).json({ error: "Authentication failed" });
+      }
+      const passwordMatch = await bcrypt.compare(password, user.password);
+      if (!passwordMatch) {
+        return res.status(401).json({ error: "Authentication failed" });
+      }
     }
-    const passwordMatch = await bcrypt.compare(password, user.password);
-    if (!passwordMatch) {
-      return res.status(401).json({ error: "Authentication failed" });
-    }
-    const token = jwt.sign({ userId: user._id }, "hackathon-rome-2024", {
+    const responseToken = jwt.sign({ userId: user._id, name: user.name, email: user.email }, "hackathon-rome-2024", {
       expiresIn: "1h",
     });
-    res.status(200).json({ id: user._id, name: user.name, token });
+    res.status(200).json({ id: user._id, name: user.name, token: responseToken });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Login failed" });
