@@ -1,8 +1,10 @@
 import axios from "axios"
 import { LoginDetails, SignUpDetails } from "../types"
 
-const loginUrl = "https://hackathon-backend-orzlrsbts-matte23ns-projects.vercel.app/auth/login"
-const signupUrl = "https://hackathon-backend-orzlrsbts-matte23ns-projects.vercel.app/auth/signup"
+const baseUrl = "https://hackathon-backend-git-main-matte23ns-projects.vercel.app"
+
+const loginUrl = baseUrl + "/auth/login"
+const signupUrl = baseUrl + "/auth/signup"
 
 export const login = async (loginRequest: LoginDetails) => {
     return await axios.post(loginUrl, loginRequest)
