@@ -16,6 +16,10 @@ const LoginSchema = z.object({
 });
 
 const SignUpSchema = z.object({
+    name: z.string()
+        .min(2, { message: "Name must be at least 2 characters long" })
+        .max(50, { message: "Name must be at most 50 characters long" })
+        .regex(/^[a-zA-Z\s]+$/, { message: "Name can only contain letters and spaces" }),
     email: z.string()
         .min(1, { message: "Email is required" })
         .email("Email is invalid"),
@@ -42,14 +46,13 @@ const AuthScreen: React.FC = () => {
     const [isLogin, setIsLogin] = useState(true);
     const [authError, setAuthError] = useState<string | null>(null)
     const [loginDetails, setLoginDetails] = useState<LoginDetails>({ email: "", password: "" })
-    const [signUpDetails, setSignUpDetails] = useState<SignUpDetails>({ email: "", password: "", confirmPassword: "" })
-    const { login, signup, loading, setUser } = useAuth()
+    const [signUpDetails, setSignUpDetails] = useState<SignUpDetails>({ name: "", email: "", password: "", confirmPassword: "" })
+    const { login, signup, loading } = useAuth()
     const navigate = useNavigate()
 
     useEffect(() => {
         const token = localStorage.getItem("token")
         if (token) {
-            setUser({ username: "Omar" })
             navigate("/home")
         }
     }, [])
@@ -60,7 +63,6 @@ const AuthScreen: React.FC = () => {
             if (isLogin) {
                 LoginSchema.parse(loginDetails)
                 const token = await login(loginDetails as LoginDetails)
-                setUser({ username: "Omar" })
                 localStorage.setItem("token", token)
                 navigate("/home")
             } else {
@@ -69,7 +71,7 @@ const AuthScreen: React.FC = () => {
                 setIsLogin(true)
             }
             setLoginDetails({ email: "", password: "" })
-            setSignUpDetails({ email: "", password: "", confirmPassword: "" })
+            setSignUpDetails({ name: "", email: "", password: "", confirmPassword: "" })
         } catch (err) {
             if (err instanceof ZodError) {
                 setAuthError(err.errors[0].message)
@@ -105,6 +107,22 @@ const AuthScreen: React.FC = () => {
                 <h2 className="text-2xl font-bold mb-6 text-center">
                     {isLogin ? 'Login' : 'Sign Up'}
                 </h2>
+
+                {!isLogin &&
+                    <div className="mb-4">
+                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
+                            Name
+                        </label>
+                        <input
+                            id="name"
+                            name="name"
+                            value={signUpDetails.name}
+                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                            placeholder="Enter your name"
+                            onChange={(e) => handleInput(e.currentTarget.name, e.currentTarget.value)}
+                        />
+                    </div>
+                }
 
                 <div className="mb-4">
                     <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
@@ -146,7 +164,7 @@ const AuthScreen: React.FC = () => {
                             id="confirm-password"
                             type="password"
                             name="confirmPassword"
-                            value={signUpDetails.confirmPassword}
+                            value={signUpDetails?.confirmPassword}
                             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                             placeholder="Confirm your password"
                             onChange={(e) => handleInput(e.currentTarget.name, e.currentTarget.value)}
