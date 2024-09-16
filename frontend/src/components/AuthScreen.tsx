@@ -47,15 +47,15 @@ const AuthScreen: React.FC = () => {
     const [authError, setAuthError] = useState<string | null>(null)
     const [loginDetails, setLoginDetails] = useState<LoginDetails>({ email: "", password: "" })
     const [signUpDetails, setSignUpDetails] = useState<SignUpDetails>({ name: "", email: "", password: "", confirmPassword: "" })
-    const { login, signup, loading, user } = useAuth()
+    const { login, signup, loading } = useAuth()
     const navigate = useNavigate()
 
     useEffect(() => {
         const token = localStorage.getItem("token")
-        if (!!token && !!user) {
+        if (token) {
             navigate("/home")
         }
-    }, [])
+    }, [navigate])
 
     const handleAuth = async () => {
         setAuthError(null)
@@ -103,7 +103,7 @@ const AuthScreen: React.FC = () => {
 
     return (
         <div className="min-h-screen flex justify-center items-center p-4">
-            <div className="bg-white rounded-lg shadow-lg w-full p-4">
+            <div className="bg-white rounded-lg shadow-lg w-full p-4 max-w-[600px]">
                 <h2 className="text-2xl font-bold mb-6 text-center">
                     {isLogin ? 'Login' : 'Sign Up'}
                 </h2>
