@@ -63,7 +63,7 @@ const Home = () => {
 
     useEffect(() => {
         const token = localStorage.getItem("token")
-        if (!token || !user) {
+        if (!token && !user) {
             navigate("/")
         }
     }, [navigate, user])
@@ -72,7 +72,7 @@ const Home = () => {
         <Fragment>
             <div className="flex-1 flex justify-center items-center">
                 <div className="relative p-6 min-h-screen max-w-[600px] flex flex-col w-full border-x-[1px] border-gray-200">
-                    <p className="text-[50px] font-semibold">Ciao, {user?.username} &#128075;</p>
+                    <p className="text-[50px] font-semibold">Ciao, {user?.name} &#128075;</p>
                     <div className="flex justify-center items-center flex-col gap-2 mt-4">
                         <p>{startDate.toLocaleString('default', { month: 'long' })}</p>
                         <div className="flex items-center justify-center w-full space-x-2">
