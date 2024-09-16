@@ -1,7 +1,9 @@
 const { Sequelize, Model, DataTypes } = require('sequelize');
 const { pg } = require('pg');
 
-const sequelize = new Sequelize(process.env.POSTGRES_URL, {
+const sequelize = new Sequelize(
+    'postgres://default:XpHGgi3OYVk0@ep-twilight-math-a25t6gqn-pooler.eu-central-1.aws.neon.tech:5432/verceldb?sslmode=require'
+    , {
     dialect: 'postgres',
     dialectModule: pg
 });

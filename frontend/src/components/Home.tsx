@@ -6,23 +6,23 @@ import { FiPlus } from "react-icons/fi"
 const tasks = [
     {
         id: 1,
-        name: "Bere acqua",
-        isDone: false
+        nome: "Bere acqua",
+        done: false
     },
     {
         id: 2,
-        name: "Camminare",
-        isDone: false
+        nome: "Camminare",
+        done: false
     },
     {
         id: 3,
-        name: "Studiare",
-        isDone: true
+        nome: "Studiare",
+        done: true
     },
     {
         id: 4,
-        name: "Coding",
-        isDone: false
+        nome: "Coding",
+        done: false
     }
 ]
 
@@ -30,7 +30,7 @@ const Home = () => {
     const [isOpen, setIsOpen] = useState<boolean>(false)
     const [currentTasks, setCurrentTasks] = useState(tasks)
     const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
-    const { user } = useAuth()
+    const { user, getTask } = useAuth()
     const navigate = useNavigate()
     const [startDate, setStartDate] = useState(new Date());
 
@@ -61,7 +61,15 @@ const Home = () => {
 
     const dates = generateDates(startDate);
 
+    const askTask = async ()=>{
+        // const task2 = await getTask();
+        // console.log('task2');
+        // console.log(task2);
+        setCurrentTasks(await getTask())
+    }
+
     useEffect(() => {
+        askTask();
         const token = localStorage.getItem("token")
         if (!token || !user) {
             navigate("/")
@@ -105,8 +113,8 @@ const Home = () => {
                     <div className="mt-8">
                         {currentTasks.map((t) => {
                             return (
-                                <div key={t.id} className={`${t.isDone ? "line-through bg-blue-500 text-white" : "bg-white border-blue-500 text-blue-500"} font-medium p-4 w-full border-[1px] rounded-md shadow-lg mt-4`}>
-                                    <p>{t.name}</p>
+                                <div key={t.id} className={`${t.done ? "line-through bg-blue-500 text-white" : "bg-white border-blue-500 text-blue-500"} font-medium p-4 w-full border-[1px] rounded-md shadow-lg mt-4`}>
+                                    <p>{t.nome}</p>
                                 </div>
                             )
                         })}
@@ -118,8 +126,8 @@ const Home = () => {
                             setIsOpen((prev) => !prev)
                             // setCurrentTasks((prev) => ([...prev, {
                             //     id: 5,
-                            //     name: "Test",
-                            //     isDone: false
+                            //     nome: "Test",
+                            //     done: false
                             // }]))
                         }}
                         className={`fixed md:absolute flex justify-center items-center shadow-xl bottom-6 right-6 rounded-full
