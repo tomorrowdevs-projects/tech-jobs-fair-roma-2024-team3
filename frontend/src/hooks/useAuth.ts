@@ -14,7 +14,8 @@ const useAuth = () => {
         setIsLoading(true)
         try {
             const { data } = await LoginRequest(user)
-            // $user.set(data)
+            console.log(data)
+            $user.set({ id: data?._id, name: data?.name, token: data?.token })
             setIsLoading(false)
             return data?.token
         } catch (err) {
@@ -37,7 +38,6 @@ const useAuth = () => {
 
     return {
         user,
-        setUser: (data: User) => $user.set(data),
         loading,
         login,
         signup
