@@ -82,7 +82,7 @@ const Home = () => {
         };
 
         getUser();
-    }, []);
+    }, [login, navigate, user]);
 
     if (loading) {
         return (
