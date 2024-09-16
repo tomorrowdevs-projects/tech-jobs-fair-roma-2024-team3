@@ -2,6 +2,8 @@ import { Fragment, useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import useAuth from "../hooks/useAuth"
 import { FiPlus } from "react-icons/fi"
+import Spinner from "./Spinner"
+import { IoMdLogOut } from "react-icons/io"
 
 const tasks = [
     {
@@ -30,7 +32,7 @@ const Home = () => {
     const [isOpen, setIsOpen] = useState<boolean>(false)
     const [currentTasks, setCurrentTasks] = useState(tasks)
     const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
-    const { user } = useAuth()
+    const { user, login, loading, logout } = useAuth()
     const navigate = useNavigate()
     const [startDate, setStartDate] = useState(new Date());
 
@@ -62,27 +64,60 @@ const Home = () => {
     const dates = generateDates(startDate);
 
     useEffect(() => {
-        const token = localStorage.getItem("token")
-        if (!token && !user) {
-            navigate("/")
-        }
-    }, [navigate, user])
+        const token = localStorage.getItem("token");
+
+        const getUser = async () => {
+            if (token && !user) {
+                try {
+                    const newToken = await login(undefined, token);
+                    localStorage.setItem("token", newToken)
+                } catch (err) {
+                    console.log(err)
+                    navigate("/")
+                }
+            }
+            if (!token || !user) {
+                navigate("/");
+            }
+        };
+
+        getUser();
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen w-full flex justify-center items-center">
+                <Spinner isInverted />
+            </div>
+        )
+    }
 
     return (
         <Fragment>
             <div className="flex-1 flex justify-center items-center">
-                <div className="relative p-6 min-h-screen max-w-[600px] flex flex-col w-full border-x-[1px] border-gray-200">
-                    <p className="text-[50px] font-semibold">Ciao, {user?.name} &#128075;</p>
+                <div className="relative  min-h-screen max-w-[600px] flex flex-col w-full border-x-[1px] border-gray-200">
+                    <div className="flex justify-between items-center w-full px-4 pt-4">
+                        <p className="text-[40px] md:text-[50px] font-semibold">Ciao, {user?.name} &#128075;</p>
+                        <button
+                            onClick={() => {
+                                logout()
+                                navigate("/")
+                            }}
+                            className="text-blue-500 p-1 border-2 border-blue-500 rounded-full"
+                        >
+                            <IoMdLogOut size={30} />
+                        </button>
+                    </div>
                     <div className="flex justify-center items-center flex-col gap-2 mt-4">
                         <p>{startDate.toLocaleString('default', { month: 'long' })}</p>
-                        <div className="flex items-center justify-center w-full space-x-2">
+                        <div className="flex items-center justify-center w-full">
                             <button
                                 onClick={handlePrev}
                                 className="text-xl w-[40px] h-[40px] bg-gray-200 rounded-full hover:bg-gray-300 text-center"
                             >
                                 ←
                             </button>
-                            <div className="flex gap-2">
+                            <div className="flex gap-1 px-2">
                                 {dates.map((date, index) => {
                                     const isToday = date.toDateString() === new Date().toDateString()
                                     const isClicked = date.toDateString() === selectedDate?.toDateString()
@@ -102,7 +137,7 @@ const Home = () => {
                             </button>
                         </div>
                     </div>
-                    <div className="mt-8">
+                    <div className="mt-8 px-4">
                         {currentTasks.map((t) => {
                             return (
                                 <div key={t.id} className={`${t.isDone ? "line-through bg-blue-500 text-white" : "bg-white border-blue-500 text-blue-500"} font-medium p-4 w-full border-[1px] rounded-md shadow-lg mt-4`}>
@@ -137,7 +172,7 @@ const Home = () => {
                 <Fragment>
                     <div className="absolute top-0 left-0 w-full h-screen z-10 bg-black opacity-30" />
                     <div className="absolute top-0 left-0 w-full h-screen flex justify-center items-center z-20">
-                        <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+                        <div className="bg-white p-4 rounded-lg shadow-lg w-96">
                             <h2 className="text-2xl font-bold mb-6 text-center">
                                 Add new task
                             </h2>
