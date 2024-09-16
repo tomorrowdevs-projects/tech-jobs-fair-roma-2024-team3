@@ -4,11 +4,14 @@ export interface LoginDetails {
 }
 
 export interface SignUpDetails {
+    name: string
     email: string
     password: string
     confirmPassword: string
 }
 
 export interface User {
-    username: string
+    id: string
+    name: string
+    token: string
 }
