@@ -36,11 +36,17 @@ const useAuth = () => {
         }
     }
 
+    const logout = () => {
+        localStorage.removeItem("token")
+        $user.set(undefined)
+    }
+
     return {
         user,
         loading,
         login,
-        signup
+        signup,
+        logout
     }
 }
 

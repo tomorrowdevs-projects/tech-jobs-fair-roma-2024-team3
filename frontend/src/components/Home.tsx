@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"
 import useAuth from "../hooks/useAuth"
 import { FiPlus } from "react-icons/fi"
 import Spinner from "./Spinner"
+import { IoMdLogOut } from "react-icons/io"
 
 const tasks = [
     {
@@ -31,7 +32,7 @@ const Home = () => {
     const [isOpen, setIsOpen] = useState<boolean>(false)
     const [currentTasks, setCurrentTasks] = useState(tasks)
     const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
-    const { user, login, loading } = useAuth()
+    const { user, login, loading, logout } = useAuth()
     const navigate = useNavigate()
     const [startDate, setStartDate] = useState(new Date());
 
@@ -95,7 +96,12 @@ const Home = () => {
         <Fragment>
             <div className="flex-1 flex justify-center items-center">
                 <div className="relative  min-h-screen max-w-[600px] flex flex-col w-full border-x-[1px] border-gray-200">
-                    <p className="text-[40px] md:text-[50px] font-semibold px-4 pt-4">Ciao, {user?.name} &#128075;</p>
+                    <div className="flex justify-between items-center w-full px-4 pt-4">
+                        <p className="text-[40px] md:text-[50px] font-semibold">Ciao, {user?.name} &#128075;</p>
+                        <button onClick={logout} className="text-blue-500 p-1 border-2 border-blue-500 rounded-full">
+                            <IoMdLogOut size={30} />
+                        </button>
+                    </div>
                     <div className="flex justify-center items-center flex-col gap-2 mt-4">
                         <p>{startDate.toLocaleString('default', { month: 'long' })}</p>
                         <div className="flex items-center justify-center w-full">
