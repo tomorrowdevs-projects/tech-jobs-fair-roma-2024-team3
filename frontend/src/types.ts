@@ -11,13 +11,23 @@ export interface SignUpDetails {
 }
 
 export interface User {
-    id: string
+    id: number
     name: string
     token: string
 }
 
 export interface Task {
-    id: string
+    id: number
+    userId: number
     name: string
+    date: Date
+    done: boolean
+}
+
+export interface TaskRequest {
+    id?: number
+    userId: number
+    name: string
+    date: Date
     done: boolean
 }
