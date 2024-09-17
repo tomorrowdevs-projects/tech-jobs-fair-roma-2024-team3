@@ -6,22 +6,105 @@ import Spinner from "../components/Spinner"
 import Header from "../components/Header"
 import { Task, TaskRequest } from "../types"
 import Input from "../components/Input"
-import useTask from "../hooks/useTask"
+import useTask, { TaskSchema } from "../hooks/useTask"
 import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css";
 import { GoTrash } from "react-icons/go"
 import { deleteById } from "../api/task"
+import { CiCalendar } from "react-icons/ci"
+import { ZodError } from "zod"
+import { AxiosError } from "axios"
+
+const thisTasks = [
+    {
+        id: 1,
+        name: "done",
+        done: false,
+        userId: 30,
+        date: new Date()
+    }, {
+        id: 2,
+        name: "done",
+        done: false,
+        userId: 30,
+        date: new Date()
+    }, {
+        id: 3,
+        name: "done",
+        done: false,
+        userId: 30,
+        date: new Date()
+    }, {
+        id: 4,
+        name: "done",
+        done: false,
+        userId: 30,
+        date: new Date()
+    }, {
+        id: 5,
+        name: "done",
+        done: false,
+        userId: 30,
+        date: new Date()
+    }, {
+        id: 6,
+        name: "done",
+        done: false,
+        userId: 30,
+        date: new Date()
+    }, {
+        id: 7,
+        name: "done",
+        done: false,
+        userId: 30,
+        date: new Date()
+    }, {
+        id: 8,
+        name: "done",
+        done: false,
+        userId: 30,
+        date: new Date()
+    }, {
+        id: 9,
+        name: "done",
+        done: false,
+        userId: 30,
+        date: new Date()
+    },
+    {
+        id: 10,
+        name: "done",
+        done: false,
+        userId: 30,
+        date: new Date()
+    },
+    {
+        id: 11,
+        name: "done",
+        done: false,
+        userId: 30,
+        date: new Date()
+    },
+    {
+        id: 12,
+        name: "done",
+        done: false,
+        userId: 30,
+        date: new Date()
+    }
+]
 
 const HomePage = () => {
+    const [error, setError] = useState<string | null>(null)
     const [isOpen, setIsOpen] = useState<boolean>(false)
     const [selectedTask, setSelectedTask] = useState<Task | null>(null)
-    const [tasks, setTasks] = useState<Task[] | undefined>(undefined)
+    const [tasks, setTasks] = useState<Task[] | undefined>(thisTasks)
     const { user, login, loading, logout } = useAuth()
-    const [taskRequest, setTaskRequest] = useState<TaskRequest>({ name: "", userId: 0, date: new Date(), done: false })
     const navigate = useNavigate()
     const [startDate, setStartDate] = useState<Date>(new Date());
     const [selectedDate, setSelectedDate] = useState<Date>(startDate)
-    const { createTask, updateTask, findTasksByUserAndDate } = useTask();
+    const [taskRequest, setTaskRequest] = useState<TaskRequest>({ name: "", userId: 0, date: selectedDate ?? new Date(), done: false })
+    const { createTask, updateTask, findTasksByUserAndDate, loading: taskLoading } = useTask();
 
     const generateDates = (start: Date) => {
         const dates = [];
@@ -81,6 +164,7 @@ const HomePage = () => {
     }, [selectedDate, user])
 
     const handleInput = (field: string, value: string) => {
+        setError(null)
         setTaskRequest(prevDetails => ({
             ...prevDetails,
             [field]: value
@@ -88,19 +172,33 @@ const HomePage = () => {
     };
 
     const handleSubmit = async () => {
-        if (!selectedTask) {
-            const task = await createTask({ ...taskRequest, userId: user?.id as number })
-            setTasks((prevTasks) => [...(prevTasks?.length ? prevTasks : []), task]);
-            setIsOpen(false)
-        } else {
-            const updatedTask = await updateTask({ ...taskRequest, id: selectedTask?.id as number, userId: user?.id as number })
-            setSelectedTask(null)
-            setTasks((prevTasks) =>
-                prevTasks?.map(task =>
-                    task.id === updatedTask.id ? { ...task, ...updatedTask } : task
-                )
-            );
+        try {
+            TaskSchema.parse(taskRequest)
+            if (!selectedTask) {
+                const task = await createTask({ ...taskRequest, userId: user?.id as number })
+                setTasks((prevTasks) => [...(prevTasks?.length ? prevTasks : []), task]);
+                setIsOpen(false)
+            } else {
+                const updatedTask = await updateTask({ ...taskRequest, id: selectedTask?.id as number, userId: user?.id as number })
+                setSelectedTask(null)
+                setTasks((prevTasks) =>
+                    prevTasks?.map(task =>
+                        task.id === updatedTask.id ? { ...task, ...updatedTask } : task
+                    )
+                );
+            }
+        } catch (err) {
+            if (err instanceof ZodError) {
+                setError(err.errors[0].message)
+            } else if (err instanceof Error) {
+                setError(err.message)
+            } else if (err instanceof AxiosError) {
+                setError("Ops, something went wrong!")
+            } else {
+                setError(err as string)
+            }
         }
+
     }
 
     if (loading) {
@@ -114,7 +212,7 @@ const HomePage = () => {
     return (
         <Fragment>
             <div className="flex items-center justify-center flex-1">
-                <div className="relative  min-h-screen max-w-[600px] flex flex-col w-full border-x-[1px] border-gray-200">
+                <div className="relative min-h-screen md:w-[600px] flex flex-col w-full border-x-[1px] border-gray-200">
                     <Header logout={logout} navigate={() => navigate("/")} username={user?.name} />
                     <div className="flex flex-col items-center justify-center gap-2 mt-4">
                         <p>{startDate.toLocaleString('default', { month: 'long' })}</p>
@@ -125,12 +223,19 @@ const HomePage = () => {
                             >
                                 ←
                             </button>
-                            <div className="flex gap-1 px-2">
+                            <div className="flex gap-1 p-2">
                                 {dates.map((date, index) => {
                                     const isToday = date.toDateString() === new Date().toDateString()
                                     const isClicked = date.toDateString() === selectedDate?.toDateString()
                                     return (
-                                        <button key={index} onClick={() => setSelectedDate(date)} className={`text-center w-[50px] h-[70px] rounded-full ${isToday || (isToday && isClicked) ? "bg-blue-500 text-white" : ""} ${isClicked && !isToday ? 'border-blue-500 bg-white text-blue-500 border-[1px]' : ''} `}>
+                                        <button
+                                            key={index}
+                                            onClick={() => {
+                                                setSelectedDate(date)
+                                                setTaskRequest((prev) => ({ ...prev, date }))
+                                            }}
+                                            className={`text-center w-[50px] h-[70px] rounded-full ${isToday || (isToday && isClicked) ? "bg-blue-500 text-white" : ""} ${isClicked && !isToday ? 'border-blue-500 bg-white text-blue-500 border-[1px]' : ''} `}
+                                        >
                                             <div className="font-bold">{date.getDate()}</div>
                                             <div className="text-xs">{date.toLocaleString('default', { weekday: 'short' })}</div>
                                         </button>
@@ -184,13 +289,14 @@ const HomePage = () => {
                     <button
                         type="button"
                         onClick={() => {
+                            setError(null)
                             if (selectedTask) {
                                 setSelectedTask(null)
                             } else {
                                 setIsOpen((prev) => !prev)
                             }
                         }}
-                        className={`fixed md:absolute flex justify-center items-center shadow-xl bottom-6 right-6 rounded-full
+                        className={`fixed flex justify-center items-center shadow-xl bottom-6 right-6 md:right-1/2 md:translate-x-[280px] rounded-full
                             ${(isOpen || selectedTask)
                                 ? "bg-red-500 transition duration-300 ease-in-out transform rotate-45"
                                 : "bg-blue-500 transition duration-300 ease-in-out transform rotate-0"
@@ -217,15 +323,22 @@ const HomePage = () => {
                                 <label className="block mb-2 text-sm font-bold text-gray-700" htmlFor="password">
                                     Pick a date
                                 </label>
-                                <DatePicker
-                                    selected={taskRequest?.date ?? new Date()}
-                                    onChange={(date) => {
-                                        setTaskRequest((prevDetails) => ({
-                                            ...prevDetails,
-                                            date: date as Date
-                                        }))
-                                    }}
-                                />
+                                <div className="py-[6px] px-2 border-[1px] border-gray-200 shadow-md rounded-md relative">
+                                    <DatePicker
+                                        selected={taskRequest.date}
+                                        dateFormat={"dd/MM/yyyy"}
+                                        onChange={(date) => {
+                                            setError(null)
+                                            setTaskRequest((prevDetails) => ({
+                                                ...prevDetails,
+                                                date: date as Date
+                                            }))
+                                        }}
+                                    />
+                                    <span className="absolute top-[8px] right-2">
+                                        <CiCalendar size={20} />
+                                    </span>
+                                </div>
                             </div>
 
                             {/* 
@@ -244,13 +357,15 @@ const HomePage = () => {
                                 </div> 
                             */}
 
+                            {error && <p className="text-red-500 mb-4">{error}</p>}
+
                             <button
-                                // disabled={loading}
+                                disabled={taskLoading}
                                 className="flex items-center justify-center w-full px-4 py-2 font-bold text-white bg-blue-500 rounded md:hover:bg-blue-700 focus:outline-none focus:shadow-outline"
                                 onClick={handleSubmit}
                             >
-                                {/* {loading ? <Spinner /> : isLogin ? 'Login' : 'Sign Up'} */}
-                                {selectedTask ? 'Update' : 'Create'}
+                                {taskLoading ? <Spinner /> : null}
+                                {!taskLoading ? selectedTask ? 'Update' : 'Create' : null}
                             </button>
                         </div>
                     </div>
