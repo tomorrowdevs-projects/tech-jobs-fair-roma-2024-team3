@@ -6,11 +6,11 @@ const Task = require("../models/Task");
 // Crea una nuova attività
 router.post("/create", async (req, res) => {
   try {
-    const { nome, user, date } = req.body;
-    const task = await Task.create({ nome, user, date });
+    const { name, userId, date } = req.body;
+    const task = await Task.create({ name, userId, date });
     res.status(201).json(task);
   } catch (error) {
-    res.status(500).json({ error: "Creazione attività fallita" });
+    res.status(500).json({ error: "Failed to create new task." });
   }
 });
 
@@ -20,18 +20,18 @@ router.get("/all", async (req, res) => {
     const task = await Task.findAll();
     res.json(task);
   } catch (error) {
-    res.status(500).json({ error: "Recupero attività fallito" });
+    res.status(500).json({ error: "Failed to get all tasks." });
   }
 });
 
 // Recupera tutte le attività di un singolo utente e di un singolo giorno
 router.post("/findByUserIdAndDate", async (req, res) => {
   try {
-    const { user, date } = req.body;
-    const task = await Task.findAll({ where: { user, date } });
+    const { userId, date } = req.body;
+    const task = await Task.findAll({ where: { userId, date } });
     res.json(task);
   } catch (error) {
-    res.status(500).json({ error: "Recupero attività fallito" });
+    res.status(500).json({ error: "Failed to get task by user and date." });
   }
 });
 
@@ -42,7 +42,7 @@ router.delete("/delete/:id", async (req, res) => {
     await Task.destroy({ where: { id } });
     res.sendStatus(204);
   } catch (error) {
-    res.status(500).json({ error: "Eliminazione attività fallita" });
+    res.status(500).json({ error: "Failed to delete task." });
   }
 });
 
@@ -50,13 +50,13 @@ router.delete("/delete/:id", async (req, res) => {
 router.put("/update/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const { nome } = req.body;
+    const { name } = req.body;
     const task = await Task.findOne({ where: { id } });
-    task.nome = nome;
+    task.nome = name;
     await task.save();
     res.json(task);
   } catch (error) {
-    res.status(500).json({ error: "Modifica attività fallita" });
+    res.status(500).json({ error: "Failed to update task." });
   }
 });
 
