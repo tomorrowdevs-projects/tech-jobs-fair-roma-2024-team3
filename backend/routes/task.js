@@ -6,8 +6,8 @@ const Task = require("../models/Task");
 // Crea una nuova attività
 router.post("/create", async (req, res) => {
   try {
-    const { nome } = req.body;
-    const task = await Task.create({ nome });
+    const { nome, user, date } = req.body;
+    const task = await Task.create({ nome, user, date });
     res.status(201).json(task);
   } catch (error) {
     res.status(500).json({ error: "Creazione attività fallita" });
@@ -18,6 +18,17 @@ router.post("/create", async (req, res) => {
 router.get("/all", async (req, res) => {
   try {
     const task = await Task.findAll();
+    res.json(task);
+  } catch (error) {
+    res.status(500).json({ error: "Recupero attività fallito" });
+  }
+});
+
+// Recupera tutte le attività di un singolo utente e di un singolo giorno
+router.post("/findByUserIdAndDate", async (req, res) => {
+  try {
+    const { user, date } = req.body;
+    const task = await Task.findAll({ where: { user, date } });
     res.json(task);
   } catch (error) {
     res.status(500).json({ error: "Recupero attività fallito" });
