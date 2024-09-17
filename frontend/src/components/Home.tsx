@@ -3,40 +3,43 @@ import { useNavigate } from "react-router-dom"
 import useAuth from "../hooks/useAuth"
 import { FiPlus } from "react-icons/fi"
 import Spinner from "./Spinner"
-import { IoMdLogOut } from "react-icons/io"
+import Header from "./Header"
+import { Task } from "../types"
+import Input from "./Input"
 import useActivity from "../hooks/useActivity"
 
 const tasks = [
     {
-        id: 1,
+        id: "1",
         name: "Bere acqua",
-        isDone: false
+        done: false
     },
     {
-        id: 2,
+        id: "2",
         name: "Camminare",
-        isDone: false
+        done: false
     },
     {
-        id: 3,
+        id: "3",
         name: "Studiare",
-        isDone: true
+        done: true
     },
     {
-        id: 4,
+        id: "4",
         name: "Coding",
-        isDone: false
+        done: false
     }
 ]
 
 const Home = () => {
     const [isOpen, setIsOpen] = useState<boolean>(false)
-    const [currentTasks, setCurrentTasks] = useState(tasks)
+    const [selectedTask, setSelectedTask] = useState<Task | null>(null)
+    const [currentTasks, setCurrentTasks] = useState<Task[]>(tasks)
     const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
     const { user, login, loading, logout } = useAuth()
     const navigate = useNavigate()
-    const [startDate, setStartDate] = useState(new Date());
-    const { getActivity, updateActivity } = useActivity()
+    const [startDate, setStartDate] = useState<Date>(new Date());
+    const { getActivity, updateActivity } = useActivity();
 
     console.log(setCurrentTasks)
 
@@ -44,18 +47,17 @@ const Home = () => {
         const data = await getActivity();
         console.log('data from home');
         console.log(data);
-        // console.log(new Date());
+        // console.log(new Date()); //test
         return data
     }
 
-    const testUpdate = async(task:any)=>{
+    const selectTask = async(task:any)=>{
+        setSelectedTask(task);
         const data= await updateActivity(task);
         console.log('update data home');
         console.log(data);
-        
     }
 
-    // Generate an array of 10 dates starting from startDate
     const generateDates = (start: Date) => {
         const dates = [];
         for (let i = 0; i < 5; i++) {
@@ -68,20 +70,20 @@ const Home = () => {
 
     const handlePrev = () => {
         const newStartDate = new Date(startDate);
-        newStartDate.setDate(startDate.getDate() - 5); // Go back by 10 days
+        newStartDate.setDate(startDate.getDate() - 5);
         setStartDate(newStartDate);
     };
 
     const handleNext = () => {
         const newStartDate = new Date(startDate);
-        newStartDate.setDate(startDate.getDate() + 5); // Go forward by 10 days
+        newStartDate.setDate(startDate.getDate() + 5);
         setStartDate(newStartDate);
     };
 
     const dates = generateDates(startDate);
 
     useEffect(() => {
-        askActivity()
+        askActivity();
         const token = localStorage.getItem("token");
 
         const getUser = async () => {
@@ -114,18 +116,7 @@ const Home = () => {
         <Fragment>
             <div className="flex items-center justify-center flex-1">
                 <div className="relative  min-h-screen max-w-[600px] flex flex-col w-full border-x-[1px] border-gray-200">
-                    <div className="flex items-center justify-between w-full px-4 pt-4">
-                        <p className="text-[40px] md:text-[50px] font-semibold">Ciao, {user?.name} &#128075;</p>
-                        <button
-                            onClick={() => {
-                                logout()
-                                navigate("/")
-                            }}
-                            className="p-1 text-blue-500 border-2 border-blue-500 rounded-full"
-                        >
-                            <IoMdLogOut size={30} />
-                        </button>
-                    </div>
+                    <Header logout={logout} navigate={() => navigate("/")} username={user?.name} />
                     <div className="flex flex-col items-center justify-center gap-2 mt-4">
                         <p>{startDate.toLocaleString('default', { month: 'long' })}</p>
                         <div className="flex items-center justify-center w-full">
@@ -158,9 +149,7 @@ const Home = () => {
                     <div className="px-4 mt-8">
                         {currentTasks.map((t) => {
                             return (
-                                <div
-                                onClick={()=> testUpdate(t)}
-                                key={t.id} className={`${t.isDone ? "line-through bg-blue-500 text-white" : "bg-white border-blue-500 text-blue-500"} font-medium p-4 w-full border-[1px] rounded-md shadow-lg mt-4`}>
+                                <div key={t.id} onClick={() => selectTask(t)} className={`${t.done ? "line-through bg-blue-500 text-white" : "bg-white border-blue-500 text-blue-500"} font-medium p-4 w-full border-[1px] rounded-md shadow-lg mt-4 cursor-pointer`}>
                                     <p>{t.name}</p>
                                 </div>
                             )
@@ -170,45 +159,38 @@ const Home = () => {
                     <button
                         type="button"
                         onClick={() => {
-                            setIsOpen((prev) => !prev)
+                            if (selectedTask) {
+                                setSelectedTask(null)
+                            } else {
+                                setIsOpen((prev) => !prev)
+                            }
                             // setCurrentTasks((prev) => ([...prev, {
                             //     id: 5,
                             //     name: "Test",
-                            //     isDone: false
+                            //     done: false
                             // }]))
                         }}
                         className={`fixed md:absolute flex justify-center items-center shadow-xl bottom-6 right-6 rounded-full
-                ${isOpen
+                            ${(isOpen || selectedTask)
                                 ? "bg-red-500 transition duration-300 ease-in-out transform rotate-45"
                                 : "bg-blue-500 transition duration-300 ease-in-out transform rotate-0"
-                            } 
-                text-white z-30 w-[70px] h-[70px]`}
+                            } text-white z-30 w-[70px] h-[70px]`}
                     >
                         <FiPlus size={35} />
                     </button>
                 </div>
             </div>
-            {isOpen && (
+            {(isOpen || selectedTask) && (
                 <Fragment>
                     <div className="absolute top-0 left-0 z-10 w-full h-screen bg-black opacity-30" />
                     <div className="absolute top-0 left-0 z-20 flex items-center justify-center w-full h-screen">
                         <div className="p-4 bg-white rounded-lg shadow-lg w-96">
                             <h2 className="mb-6 text-2xl font-bold text-center">
-                                Add new task
+                                {selectedTask ? `Update ${selectedTask.name}` : 'Add new task'}
                             </h2>
 
                             <div className="mb-4">
-                                <label className="block mb-2 text-sm font-bold text-gray-700" htmlFor="username">
-                                    Name
-                                </label>
-                                <input
-                                    id="name"
-                                    name="name"
-                                    // value={newTask?.name}
-                                    className="w-full px-3 py-2 leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
-                                    placeholder="Enter name"
-                                // onChange={(e) => handleInput(e.currentTarget.name, e.currentTarget.value)}
-                                />
+                                <Input id="name" name="name" label="Name" placeholder="Enter task name" onChange={() => console.log()} />
                             </div>
 
                             <div className="mb-4">
@@ -237,7 +219,7 @@ const Home = () => {
                             // onClick={handleAuth}
                             >
                                 {/* {loading ? <Spinner /> : isLogin ? 'Login' : 'Sign Up'} */}
-                                Create
+                                {selectedTask ? 'Update' : 'Create'}
                             </button>
                         </div>
                     </div>
