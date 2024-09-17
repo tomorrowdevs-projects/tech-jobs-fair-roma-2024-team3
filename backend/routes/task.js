@@ -2,6 +2,7 @@
 const express = require("express");
 const router = express.Router();
 const Task = require("../models/Task");
+const { Sequelize } = require("sequelize");
 
 // Crea una nuova attività
 router.post("/create", async (req, res) => {
@@ -28,8 +29,18 @@ router.get("/all", async (req, res) => {
 router.post("/findByUserIdAndDate", async (req, res) => {
   try {
     const { userId, date } = req.body;
-    const task = await Task.findAll({ where: { userId, date } });
-    res.json(task);
+    const dataStart = new Date(date).setHours(0, 0, 0, 0);
+    const dataEnd = new Date(date).setHours(23, 59, 59, 59);
+    const tasks = await Task.findAll({
+      where: {
+        userId,
+        date: {
+          [Sequelize.Op.gt]: dataStart,
+          [Sequelize.Op.lt]: dataEnd,
+        },
+      },
+    });
+    res.json(tasks);
   } catch (error) {
     res.status(500).json({ error: "Failed to get task by user and date." });
   }
@@ -50,9 +61,11 @@ router.delete("/delete/:id", async (req, res) => {
 router.put("/update/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const { name } = req.body;
+    const { name, done, date } = req.body;
     const task = await Task.findOne({ where: { id } });
-    task.nome = name;
+    task.name = name;
+    task.done = done;
+    task.date = date;
     await task.save();
     res.json(task);
   } catch (error) {

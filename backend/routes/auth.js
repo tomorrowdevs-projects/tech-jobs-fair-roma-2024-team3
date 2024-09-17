@@ -22,8 +22,6 @@ router.post("/signup", validateEmailMiddleware, isExistingEmailMiddleware, async
 
 // User login
 router.post("/login", async (req, res) => {
-  alert('check')
-
   try {
     const { email, password, token } = req.body;
     let user;
@@ -39,14 +37,11 @@ router.post("/login", async (req, res) => {
         return res.status(401).json({ error: "Authentication failed" });
       }
     }
-    const responseToken = jwt.sign({ userId: user._id, name: user.name, email: user.email }, "hackathon-rome-2024", {
+    const responseToken = jwt.sign({ id: user.id, name: user.name, email: user.email }, "hackathon-rome-2024", {
       expiresIn: "1h",
     });
-    console.log('responseToken-----------------');
-    alert('check')
-    console.log(responseToken);
-    
-    res.status(200).json({ id: user._id, name: user.name, token: responseToken });
+
+    res.status(200).json({ id: user.id, name: user.name, token: responseToken });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Login failed" });

@@ -2,68 +2,26 @@ import { Fragment, useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import useAuth from "../hooks/useAuth"
 import { FiPlus } from "react-icons/fi"
-import Spinner from "./Spinner"
-import Header from "./Header"
-import { Task } from "../types"
-import Input from "./Input"
-import useActivity from "../hooks/useActivity"
+import Spinner from "../components/Spinner"
+import Header from "../components/Header"
+import { Task, TaskRequest } from "../types"
+import Input from "../components/Input"
+import useTask from "../hooks/useTask"
+import DatePicker from "react-datepicker"
+import "react-datepicker/dist/react-datepicker.css";
+import { GoTrash } from "react-icons/go"
+import { deleteById } from "../api/task"
 
-const tasks = [
-    {
-        id: "1",
-        name: "Bere acqua",
-        done: false
-    },
-    {
-        id: "2",
-        name: "Camminare",
-        done: false
-    },
-    {
-        id: "3",
-        name: "Studiare",
-        done: true
-    },
-    {
-        id: "4",
-        name: "Coding",
-        done: false
-    }
-]
-
-const Home = () => {
+const HomePage = () => {
     const [isOpen, setIsOpen] = useState<boolean>(false)
     const [selectedTask, setSelectedTask] = useState<Task | null>(null)
-    const [currentTasks, setCurrentTasks] = useState<Task[]>(tasks)
-    const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
+    const [tasks, setTasks] = useState<Task[] | undefined>(undefined)
     const { user, login, loading, logout } = useAuth()
+    const [taskRequest, setTaskRequest] = useState<TaskRequest>({ name: "", userId: 0, date: new Date(), done: false })
     const navigate = useNavigate()
     const [startDate, setStartDate] = useState<Date>(new Date());
-    const { getActivity, updateActivity, createActivity } = useActivity();
-
-    console.log(setCurrentTasks)
-console.log(user);
-
-    const createTask = async(task:any)=>{
-        const data = await createActivity(task);
-        console.log(data);
-        
-    }
-
-    const askActivity = async()=>{
-        const data = await getActivity();
-        console.log('data from home');
-        console.log(data);
-        // console.log(new Date()); //test
-        return data
-    }
-
-    const selectTask = async(task:any)=>{
-        setSelectedTask(task);
-        const data= await updateActivity(task);
-        console.log('update data home');
-        console.log(data);
-    }
+    const [selectedDate, setSelectedDate] = useState<Date>(startDate)
+    const { createTask, updateTask, findTasksByUserAndDate } = useTask();
 
     const generateDates = (start: Date) => {
         const dates = [];
@@ -90,7 +48,6 @@ console.log(user);
     const dates = generateDates(startDate);
 
     useEffect(() => {
-        askActivity();
         const token = localStorage.getItem("token");
 
         const getUser = async () => {
@@ -100,6 +57,7 @@ console.log(user);
                     localStorage.setItem("token", newToken)
                 } catch (err) {
                     console.log(err)
+                    localStorage.removeItem("token")
                     navigate("/")
                 }
             }
@@ -110,6 +68,40 @@ console.log(user);
 
         getUser();
     }, [login, navigate, user]);
+
+    useEffect(() => {
+        const getTasks = async () => {
+            if (user?.id) {
+                const tasks = await findTasksByUserAndDate(user.id, selectedDate)
+                setTasks(tasks ?? [])
+            }
+        }
+
+        getTasks()
+    }, [selectedDate, user])
+
+    const handleInput = (field: string, value: string) => {
+        setTaskRequest(prevDetails => ({
+            ...prevDetails,
+            [field]: value
+        }));
+    };
+
+    const handleSubmit = async () => {
+        if (!selectedTask) {
+            const task = await createTask({ ...taskRequest, userId: user?.id as number })
+            setTasks((prevTasks) => [...(prevTasks?.length ? prevTasks : []), task]);
+            setIsOpen(false)
+        } else {
+            const updatedTask = await updateTask({ ...taskRequest, id: selectedTask?.id as number, userId: user?.id as number })
+            setSelectedTask(null)
+            setTasks((prevTasks) =>
+                prevTasks?.map(task =>
+                    task.id === updatedTask.id ? { ...task, ...updatedTask } : task
+                )
+            );
+        }
+    }
 
     if (loading) {
         return (
@@ -154,17 +146,40 @@ console.log(user);
                         </div>
                     </div>
                     <div className="px-4 mt-8">
-                        {currentTasks.map((t) => {
+                        {tasks?.map((t) => {
                             return (
-                                <div key={t.id} onClick={() => selectTask(t)} className={`${t.done ? "line-through bg-blue-500 text-white" : "bg-white border-blue-500 text-blue-500"} font-medium p-4 w-full border-[1px] rounded-md shadow-lg mt-4 cursor-pointer`}>
-                                    <p>{t.name}</p>
+                                <div key={t.id} onClick={() => setSelectedTask(t)} className={`${t.done ? "line-through bg-blue-500 text-white" : "bg-white border-blue-500 text-blue-500"} font-medium p-4 w-full border-[1px] rounded-md shadow-lg mt-4 cursor-pointer flex justify-between items-center`}>
+                                    <div className="flex justify-center items-center gap-4">
+                                        <div
+                                            className={`bg-white w-4 h-4 border-[1px] border-blue-500 rounded-md`}
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                const completedTask = { ...t, done: !t.done }
+                                                updateTask(completedTask)
+                                                setTasks((prevTasks) =>
+                                                    prevTasks?.map(task =>
+                                                        task.id === completedTask.id ? { ...task, ...completedTask } : task
+                                                    )
+                                                );
+                                            }}
+                                        />
+                                        <p>{t.name}</p>
+                                    </div>
+                                    <button onClick={async (e) => {
+                                        e.stopPropagation()
+                                        deleteById(t.id)
+                                        setTasks((prevTasks) =>
+                                            prevTasks?.filter(task =>
+                                                task.id !== t.id
+                                            )
+                                        );
+                                    }}>
+                                        <GoTrash size={20} />
+                                    </button>
                                 </div>
                             )
                         })}
                     </div>
-                    <button type="button" 
-                    onClick={()=>{createTask('Pippo')}}
-                     >TEST CREATE</button>
 
                     <button
                         type="button"
@@ -174,11 +189,6 @@ console.log(user);
                             } else {
                                 setIsOpen((prev) => !prev)
                             }
-                            // setCurrentTasks((prev) => ([...prev, {
-                            //     id: 5,
-                            //     name: "Test",
-                            //     done: false
-                            // }]))
                         }}
                         className={`fixed md:absolute flex justify-center items-center shadow-xl bottom-6 right-6 rounded-full
                             ${(isOpen || selectedTask)
@@ -200,33 +210,44 @@ console.log(user);
                             </h2>
 
                             <div className="mb-4">
-                                <Input id="name" name="name" label="Name" placeholder="Enter task name" onChange={() => console.log()} />
+                                <Input id="name" name="name" label="Name" placeholder="Enter task name" onChange={handleInput} />
                             </div>
 
                             <div className="mb-4">
                                 <label className="block mb-2 text-sm font-bold text-gray-700" htmlFor="password">
                                     Pick a date
                                 </label>
+                                <DatePicker
+                                    selected={taskRequest?.date ?? new Date()}
+                                    onChange={(date) => {
+                                        setTaskRequest((prevDetails) => ({
+                                            ...prevDetails,
+                                            date: date as Date
+                                        }))
+                                    }}
+                                />
                             </div>
 
-                            <div className="mb-4">
-                                <label className="block mb-2 text-sm font-bold text-gray-700" htmlFor="confirm-password">
-                                    Recursive
-                                </label>
-                                {/* <select
-                                id="recursive"
-                                name="recursive"
-                                value={signUpDetails.confirmPassword}
-                                className="w-full px-3 py-2 leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
-                                placeholder="Confirm your password"
-                                onChange={(e) => handleInput(e.currentTarget.name, e.currentTarget.value)}
-                            /> */}
-                            </div>
+                            {/* 
+                                <div className="mb-4">
+                                    <label className="block mb-2 text-sm font-bold text-gray-700" htmlFor="confirm-password">
+                                        Recursive
+                                    </label>
+                                    <select
+                                        id="recursive"
+                                        name="recursive"
+                                        value={signUpDetails.confirmPassword}
+                                        className="w-full px-3 py-2 leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
+                                        placeholder="Confirm your password"
+                                        onChange={(e) => handleInput(e.currentTarget.name, e.currentTarget.value)}
+                                    />
+                                </div> 
+                            */}
 
                             <button
                                 // disabled={loading}
                                 className="flex items-center justify-center w-full px-4 py-2 font-bold text-white bg-blue-500 rounded md:hover:bg-blue-700 focus:outline-none focus:shadow-outline"
-                            // onClick={handleAuth}
+                                onClick={handleSubmit}
                             >
                                 {/* {loading ? <Spinner /> : isLogin ? 'Login' : 'Sign Up'} */}
                                 {selectedTask ? 'Update' : 'Create'}
@@ -234,9 +255,10 @@ console.log(user);
                         </div>
                     </div>
                 </Fragment>
-            )}
-        </Fragment>
+            )
+            }
+        </Fragment >
     )
 }
 
-export default Home
+export default HomePage
