@@ -15,3 +15,9 @@ export interface User {
     name: string
     token: string
 }
+
+export interface Task {
+    id: string
+    name: string
+    done: boolean
+}
