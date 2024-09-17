@@ -24,7 +24,7 @@ app.get("/", (req, res) => {
   res.send("Hello World");
 });
 app.use('/auth', authRoutes);
-app.use('/attivita', attivitaRoutes); 
+app.use('/task', taskRoutes); 
 
 // Endpoint per iscrizione alle notifiche 
 app.post('/subscribe', (req, res) => {
