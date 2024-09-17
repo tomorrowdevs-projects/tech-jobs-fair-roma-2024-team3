@@ -6,13 +6,14 @@ import {
 } from "../api/activity";
 
 const useActivity = () => {
-    const activityUpdateTest = {
-        id: 2,
-        nome: "Completare il progetto numero 2",
-        done: true,
-        createdAt: "2024-09-14T14:17:09.004Z",
-        updatedAt: "2024-09-14T14:17:09.004Z",
-    }
+    // const activityUpdateTest = {
+    //     id: 2,
+    //     nome: "Completare il progetto numero 2",
+    //     done: true,
+    //     createdAt: "2024-09-14T14:17:09.004Z",
+    //     updatedAt: "2024-09-14T14:17:09.004Z",
+    // }
+    const activityDeleteTest = {}
     const activityCreateTest = {
         nome: 'imparare a programmare',
         done: false,
@@ -27,12 +28,12 @@ const useActivity = () => {
         }
     }
 
-    const updateActivity = async (id:any) => {
+    const updateActivity = async (task:any) => {
         try {
-            const { data } = await UpdateActivityRequest(activityUpdateTest);
+            // task.done = !task.done || task.isDone = !task.isDone
+            const { data } = await UpdateActivityRequest(task);
             console.log('data useAct');
             console.log(data);
-            console.log('id = ', id);
             return data
         } catch (error) {
             throw error;
@@ -50,7 +51,7 @@ const useActivity = () => {
 
     const deleteActivity = async () => {
         try {
-            const { data } = await DeleteActivityRequest(activityUpdateTest);
+            const { data } = await DeleteActivityRequest(activityDeleteTest);
             return data
         } catch (error) {
             throw error;

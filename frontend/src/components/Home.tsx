@@ -48,8 +48,8 @@ const Home = () => {
         return data
     }
 
-    const testUpdate = async(id:any)=>{
-        const data= await updateActivity(id);
+    const testUpdate = async(task:any)=>{
+        const data= await updateActivity(task);
         console.log('update data home');
         console.log(data);
         
@@ -159,7 +159,7 @@ const Home = () => {
                         {currentTasks.map((t) => {
                             return (
                                 <div
-                                onClick={()=> testUpdate(t.id)}
+                                onClick={()=> testUpdate(t)}
                                 key={t.id} className={`${t.isDone ? "line-through bg-blue-500 text-white" : "bg-white border-blue-500 text-blue-500"} font-medium p-4 w-full border-[1px] rounded-md shadow-lg mt-4`}>
                                     <p>{t.name}</p>
                                 </div>

@@ -13,9 +13,9 @@ export const getActivity = async () => {
 };
 
 export const updateActivity = async (updateRequest: any) => {
-    console.log('updateRequest');
-    console.log(updateRequest);
-    console.log(updateRequest.id);
+    // console.log('updateRequest');
+    // console.log(updateRequest);
+    // console.log(updateRequest.id);
     
     return await axios.put(updateActivityUrl+updateRequest.id, updateRequest);
 };
