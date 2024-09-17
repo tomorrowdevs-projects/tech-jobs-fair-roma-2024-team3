@@ -6,19 +6,31 @@ import {
 } from "../api/activity";
 
 const useActivity = () => {
-    // const activityUpdateTest = {
-    //     id: 2,
-    //     nome: "Completare il progetto numero 2",
-    //     done: true,
-    //     createdAt: "2024-09-14T14:17:09.004Z",
-    //     updatedAt: "2024-09-14T14:17:09.004Z",
-    // }
+    const activityUpdateTest = 
+    {
+        createdAt: "2024-09-17T13:00:19.230Z",
+        done: true, 
+        id: 2, 
+        name: 'imparare a programmare con passione', 
+        userId: 33, 
+        date: '2024-09-17T13:00:14.579Z',
+        updatedAt: "2024-09-17T13:00:19.230Z"
+    }
+
+    const currentDate = new Date();
+    const dateRome = currentDate.toLocaleString("it-IT", {
+        timeZone: 'Europe/Rome',
+    })
+    console.log(dateRome);
+    
     const activityDeleteTest = {}
     const activityCreateTest = {
-        nome: 'imparare a programmare',
-        done: false,
-        createdAt: new Date()
+        name: 'imparare a programmare',
+        userId: 33,
+        date: new Date(),
     }
+    
+    
     const getActivity = async () => {
         try {
             const { data } = await GetActivityRequest();
@@ -31,7 +43,11 @@ const useActivity = () => {
     const updateActivity = async (task:any) => {
         try {
             // task.done = !task.done || task.isDone = !task.isDone
-            const { data } = await UpdateActivityRequest(task);
+            // const { data } = await UpdateActivityRequest(task);
+            console.log('task------------------------------');
+            console.log(task);
+            
+            const { data } = await UpdateActivityRequest(activityUpdateTest);
             console.log('data useAct');
             console.log(data);
             return data
@@ -40,7 +56,9 @@ const useActivity = () => {
         }
     }
 
-    const createActivity = async () => {
+    const createActivity = async (task:any) => {
+        console.log(task);
+        
         try {
             const { data } = await CreateActivityRequest(activityCreateTest);
             return data

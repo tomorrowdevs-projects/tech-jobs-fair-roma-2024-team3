@@ -39,9 +39,16 @@ const Home = () => {
     const { user, login, loading, logout } = useAuth()
     const navigate = useNavigate()
     const [startDate, setStartDate] = useState<Date>(new Date());
-    const { getActivity, updateActivity } = useActivity();
+    const { getActivity, updateActivity, createActivity } = useActivity();
 
     console.log(setCurrentTasks)
+console.log(user);
+
+    const createTask = async(task:any)=>{
+        const data = await createActivity(task);
+        console.log(data);
+        
+    }
 
     const askActivity = async()=>{
         const data = await getActivity();
@@ -155,6 +162,9 @@ const Home = () => {
                             )
                         })}
                     </div>
+                    <button type="button" 
+                    onClick={()=>{createTask('Pippo')}}
+                     >TEST CREATE</button>
 
                     <button
                         type="button"
