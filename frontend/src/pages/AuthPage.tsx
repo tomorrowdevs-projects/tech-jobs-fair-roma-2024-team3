@@ -3,11 +3,11 @@ import useAuth, { LoginSchema, SignUpSchema } from '../hooks/useAuth';
 import { LoginDetails, SignUpDetails } from '../types';
 import { ZodError } from 'zod';
 import { AxiosError } from 'axios';
-import Spinner from './Spinner';
+import Spinner from '../components/Spinner';
 import { useNavigate } from 'react-router-dom';
-import Input from './Input';
+import Input from '../components/Input';
 
-const AuthScreen: React.FC = () => {
+const AuthPage: React.FC = () => {
     const [isLogin, setIsLogin] = useState(true);
     const [authError, setAuthError] = useState<string | null>(null)
     const [loginDetails, setLoginDetails] = useState<LoginDetails>({ email: "", password: "" })
@@ -145,4 +145,4 @@ const AuthScreen: React.FC = () => {
     );
 };
 
-export default AuthScreen;
+export default AuthPage;

@@ -52,7 +52,7 @@ const useAuth = () => {
         setIsLoading(true);
         try {
             const { data } = await LoginRequest(user, token);
-            $user.set({ id: data?._id, name: data?.name, token: data?.token });
+            $user.set({ id: data?.id, name: data?.name, token: data?.token });
             setIsLoading(false);
             return data?.token;
         } catch (err) {

@@ -1,10 +1,10 @@
-require('dotenv').config();
+require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
 const authRoutes = require("./routes/auth");
 const taskRoutes = require("./routes/task");
-const webpush = require('web-push');
+const webpush = require("web-push");
 
 const app = express();
 app.use(cors({ origin: ["http://localhost:5173", "https://tech-jobs-fair-roma-2024-team3.vercel.app"] }));
@@ -23,19 +23,19 @@ let subscriptions = [];
 app.get("/", (req, res) => {
   res.send("Hello World");
 });
-app.use('/auth', authRoutes);
-app.use('/task', taskRoutes); 
+app.use("/auth", authRoutes);
+app.use("/task", taskRoutes);
 
-// Endpoint per iscrizione alle notifiche 
-app.post('/subscribe', (req, res) => {
-    subscriptions.push(req.body);
-    res.status(201).json({});
-    const payload = JSON.stringify({ title: "Habits tracker", body: "La tua prima notifica" });
+// Endpoint per iscrizione alle notifiche
+app.post("/subscribe", (req, res) => {
+  subscriptions.push(req.body);
+  res.status(201).json({});
+  const payload = JSON.stringify({ title: "Habits tracker", body: "La tua prima notifica" });
 
-    subscriptions.forEach(subscription => {
-        webpush.sendNotification(subscription, payload).catch(console.log);
-    });
-})
+  subscriptions.forEach((subscription) => {
+    webpush.sendNotification(subscription, payload).catch(console.log);
+  });
+});
 
 const port = 3001;
 
