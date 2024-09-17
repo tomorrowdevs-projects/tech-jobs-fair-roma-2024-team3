@@ -1,28 +1,15 @@
+import { useState } from "react";
 import { create, deleteById, findAll, findAllByUserIdAndDate, updateById } from "../api/task";
 import { TaskRequest } from "../types";
+import { z } from "zod";
+
+export const TaskSchema = z.object({
+    name: z.string()
+        .min(1, { message: "Name is required" }),
+});
 
 const useTask = () => {
-    // const activityUpdateTest = {
-    //     createdAt: "2024-09-17T13:00:19.230Z",
-    //     done: true,
-    //     id: 2,
-    //     name: 'imparare a programmare con passione',
-    //     userId: 33,
-    //     date: '2024-09-17T13:00:14.579Z',
-    //     updatedAt: "2024-09-17T13:00:19.230Z"
-    // }
-
-    // const currentDate = new Date();
-    // const dateRome = currentDate.toLocaleString("it-IT", {
-    //     timeZone: 'Europe/Rome',
-    // })
-
-    // const activityCreateTest = {
-    //     name: 'imparare a programmare',
-    //     userId: 33,
-    //     date: new Date(),
-    // }
-
+    const [loading, setLoading] = useState<boolean>(false)
 
     const findTasks = async () => {
         const { data } = await findAll();
@@ -35,13 +22,22 @@ const useTask = () => {
     }
 
     const updateTask = async (task: TaskRequest) => {
+        setLoading(true)
         const { data } = await updateById(task);
+        setLoading(false)
         return data
     }
 
     const createTask = async (task: TaskRequest) => {
-        const { data } = await create(task);
-        return data
+        try {
+            setLoading(true)
+            const { data } = await create(task);
+            setLoading(false)
+            return data
+        } catch (err) {
+            setLoading(false)
+            throw err
+        }
     }
 
     const deleteTask = async (taskId: number) => {
@@ -53,7 +49,8 @@ const useTask = () => {
         findTasksByUserAndDate,
         updateTask,
         createTask,
-        deleteTask
+        deleteTask,
+        loading
     }
 }
 
