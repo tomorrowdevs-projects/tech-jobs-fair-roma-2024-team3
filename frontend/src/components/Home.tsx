@@ -4,6 +4,7 @@ import useAuth from "../hooks/useAuth"
 import { FiPlus } from "react-icons/fi"
 import Spinner from "./Spinner"
 import { IoMdLogOut } from "react-icons/io"
+import useActivity from "../hooks/useActivity"
 
 const tasks = [
     {
@@ -35,8 +36,26 @@ const Home = () => {
     const { user, login, loading, logout } = useAuth()
     const navigate = useNavigate()
     const [startDate, setStartDate] = useState(new Date());
+    const { getActivity, updateActivity } = useActivity()
 
     console.log(setCurrentTasks)
+
+    const askActivity = async()=>{
+        const data = await getActivity();
+        console.log('data from home');
+        console.log(data);
+        // console.log(new Date());
+        return data
+    }
+
+    const testUpdate = async(id:any)=>{
+        console.log('id');
+        console.log(id);
+        const data= await updateActivity();
+        console.log('update data home');
+        console.log(data);
+        
+    }
 
     // Generate an array of 10 dates starting from startDate
     const generateDates = (start: Date) => {
@@ -64,6 +83,7 @@ const Home = () => {
     const dates = generateDates(startDate);
 
     useEffect(() => {
+        askActivity()
         const token = localStorage.getItem("token");
 
         const getUser = async () => {
@@ -86,7 +106,7 @@ const Home = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen w-full flex justify-center items-center">
+            <div className="flex items-center justify-center w-full min-h-screen">
                 <Spinner isInverted />
             </div>
         )
@@ -94,21 +114,21 @@ const Home = () => {
 
     return (
         <Fragment>
-            <div className="flex-1 flex justify-center items-center">
+            <div className="flex items-center justify-center flex-1">
                 <div className="relative  min-h-screen max-w-[600px] flex flex-col w-full border-x-[1px] border-gray-200">
-                    <div className="flex justify-between items-center w-full px-4 pt-4">
+                    <div className="flex items-center justify-between w-full px-4 pt-4">
                         <p className="text-[40px] md:text-[50px] font-semibold">Ciao, {user?.name} &#128075;</p>
                         <button
                             onClick={() => {
                                 logout()
                                 navigate("/")
                             }}
-                            className="text-blue-500 p-1 border-2 border-blue-500 rounded-full"
+                            className="p-1 text-blue-500 border-2 border-blue-500 rounded-full"
                         >
                             <IoMdLogOut size={30} />
                         </button>
                     </div>
-                    <div className="flex justify-center items-center flex-col gap-2 mt-4">
+                    <div className="flex flex-col items-center justify-center gap-2 mt-4">
                         <p>{startDate.toLocaleString('default', { month: 'long' })}</p>
                         <div className="flex items-center justify-center w-full">
                             <button
@@ -137,10 +157,12 @@ const Home = () => {
                             </button>
                         </div>
                     </div>
-                    <div className="mt-8 px-4">
+                    <div className="px-4 mt-8">
                         {currentTasks.map((t) => {
                             return (
-                                <div key={t.id} className={`${t.isDone ? "line-through bg-blue-500 text-white" : "bg-white border-blue-500 text-blue-500"} font-medium p-4 w-full border-[1px] rounded-md shadow-lg mt-4`}>
+                                <div
+                                onClick={()=> testUpdate(t.id)}
+                                key={t.id} className={`${t.isDone ? "line-through bg-blue-500 text-white" : "bg-white border-blue-500 text-blue-500"} font-medium p-4 w-full border-[1px] rounded-md shadow-lg mt-4`}>
                                     <p>{t.name}</p>
                                 </div>
                             )
@@ -170,42 +192,42 @@ const Home = () => {
             </div>
             {isOpen && (
                 <Fragment>
-                    <div className="absolute top-0 left-0 w-full h-screen z-10 bg-black opacity-30" />
-                    <div className="absolute top-0 left-0 w-full h-screen flex justify-center items-center z-20">
-                        <div className="bg-white p-4 rounded-lg shadow-lg w-96">
-                            <h2 className="text-2xl font-bold mb-6 text-center">
+                    <div className="absolute top-0 left-0 z-10 w-full h-screen bg-black opacity-30" />
+                    <div className="absolute top-0 left-0 z-20 flex items-center justify-center w-full h-screen">
+                        <div className="p-4 bg-white rounded-lg shadow-lg w-96">
+                            <h2 className="mb-6 text-2xl font-bold text-center">
                                 Add new task
                             </h2>
 
                             <div className="mb-4">
-                                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
+                                <label className="block mb-2 text-sm font-bold text-gray-700" htmlFor="username">
                                     Name
                                 </label>
                                 <input
                                     id="name"
                                     name="name"
                                     // value={newTask?.name}
-                                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                    className="w-full px-3 py-2 leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
                                     placeholder="Enter name"
                                 // onChange={(e) => handleInput(e.currentTarget.name, e.currentTarget.value)}
                                 />
                             </div>
 
                             <div className="mb-4">
-                                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
+                                <label className="block mb-2 text-sm font-bold text-gray-700" htmlFor="password">
                                     Pick a date
                                 </label>
                             </div>
 
                             <div className="mb-4">
-                                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="confirm-password">
+                                <label className="block mb-2 text-sm font-bold text-gray-700" htmlFor="confirm-password">
                                     Recursive
                                 </label>
                                 {/* <select
                                 id="recursive"
                                 name="recursive"
                                 value={signUpDetails.confirmPassword}
-                                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                className="w-full px-3 py-2 leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
                                 placeholder="Confirm your password"
                                 onChange={(e) => handleInput(e.currentTarget.name, e.currentTarget.value)}
                             /> */}
@@ -213,7 +235,7 @@ const Home = () => {
 
                             <button
                                 // disabled={loading}
-                                className="bg-blue-500 md:hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full flex justify-center items-center"
+                                className="flex items-center justify-center w-full px-4 py-2 font-bold text-white bg-blue-500 rounded md:hover:bg-blue-700 focus:outline-none focus:shadow-outline"
                             // onClick={handleAuth}
                             >
                                 {/* {loading ? <Spinner /> : isLogin ? 'Login' : 'Sign Up'} */}
