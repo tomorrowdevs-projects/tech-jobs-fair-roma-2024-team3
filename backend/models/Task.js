@@ -9,7 +9,7 @@ const sequelize = new Sequelize(process.env.POSTGRES_URL, {
 class Task extends Model {}
 Task.init(
   {
-    user: {
+    userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
