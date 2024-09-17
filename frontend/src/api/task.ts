@@ -1,7 +1,7 @@
 import axios from "axios";
 import { TaskRequest } from "../types";
 
-const baseUrl = "https://hackathon-backend-git-main-matte23ns-projects.vercel.app";
+const baseUrl = import.meta.env.VITE_BASE_URL
 
 const getTasksUrl = baseUrl + "/task/all" // GET
 const getTasksByUserIdAndDateUrl = baseUrl + "/task/findByUserIdAndDate" // POST

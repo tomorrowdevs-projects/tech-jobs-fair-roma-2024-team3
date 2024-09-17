@@ -1,7 +1,7 @@
 import axios from "axios"
 import { LoginDetails, SignUpDetails } from "../types"
 
-const baseUrl = "https://hackathon-backend-git-main-matte23ns-projects.vercel.app"
+const baseUrl = import.meta.env.VITE_BASE_URL
 
 const loginUrl = baseUrl + "/auth/login"
 const signupUrl = baseUrl + "/auth/signup"

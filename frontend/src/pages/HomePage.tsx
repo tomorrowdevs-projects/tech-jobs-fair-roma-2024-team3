@@ -15,92 +15,14 @@ import { CiCalendar } from "react-icons/ci"
 import { ZodError } from "zod"
 import axios, { AxiosError } from "axios"
 
-const thisTasks = [
-    {
-        id: 1,
-        name: "done",
-        done: false,
-        userId: 30,
-        date: new Date()
-    }, {
-        id: 2,
-        name: "done",
-        done: false,
-        userId: 30,
-        date: new Date()
-    }, {
-        id: 3,
-        name: "done",
-        done: false,
-        userId: 30,
-        date: new Date()
-    }, {
-        id: 4,
-        name: "done",
-        done: false,
-        userId: 30,
-        date: new Date()
-    }, {
-        id: 5,
-        name: "done",
-        done: false,
-        userId: 30,
-        date: new Date()
-    }, {
-        id: 6,
-        name: "done",
-        done: false,
-        userId: 30,
-        date: new Date()
-    }, {
-        id: 7,
-        name: "done",
-        done: false,
-        userId: 30,
-        date: new Date()
-    }, {
-        id: 8,
-        name: "done",
-        done: false,
-        userId: 30,
-        date: new Date()
-    }, {
-        id: 9,
-        name: "done",
-        done: false,
-        userId: 30,
-        date: new Date()
-    },
-    {
-        id: 10,
-        name: "done",
-        done: false,
-        userId: 30,
-        date: new Date()
-    },
-    {
-        id: 11,
-        name: "done",
-        done: false,
-        userId: 30,
-        date: new Date()
-    },
-    {
-        id: 12,
-        name: "done",
-        done: false,
-        userId: 30,
-        date: new Date()
-    }
-]
-
-const publicVapidKey = "BBP1CWqLkQR0P76G_pBMD0ah5jQLuKy9mZHjMQ3RTUKRL5x2LSbUilUZd5hPD5sPUBCRvT--2r5aXoHVxUIICRM";
+const publicVapidKey = import.meta.env.VITE_PUBLIC_VAPID_KEY;
+const baseUrl = import.meta.env.VITE_BASE_URL
 
 const HomePage = () => {
     const [error, setError] = useState<string | null>(null)
     const [isOpen, setIsOpen] = useState<boolean>(false)
     const [selectedTask, setSelectedTask] = useState<Task | null>(null)
-    const [tasks, setTasks] = useState<Task[] | undefined>(thisTasks)
+    const [tasks, setTasks] = useState<Task[]>([])
     const { user, login, loading, logout } = useAuth()
     const navigate = useNavigate()
     const [startDate, setStartDate] = useState<Date>(new Date());
@@ -212,7 +134,7 @@ const HomePage = () => {
             applicationServerKey: publicVapidKey,
         });
 
-        await axios.post("https://hackathon-backend-git-main-matte23ns-projects.vercel.app/subscribe", subscription, {
+        await axios.post(baseUrl + "/subscribe", subscription, {
             headers: {
                 "Content-Type": "application/json"
             }
