@@ -6,8 +6,8 @@ const baseUrl = "https://hackathon-backend-git-main-matte23ns-projects.vercel.ap
 const loginUrl = baseUrl + "/auth/login"
 const signupUrl = baseUrl + "/auth/signup"
 
-export const login = async (loginRequest: LoginDetails) => {
-    return await axios.post(loginUrl, loginRequest)
+export const login = async (loginRequest?: LoginDetails, token?: string) => {
+    return await axios.post(loginUrl, loginRequest ?? { token })
 }
 
 export const signup = async (signupRequest: SignUpDetails) => {
