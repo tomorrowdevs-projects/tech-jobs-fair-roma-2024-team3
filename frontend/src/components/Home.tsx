@@ -49,9 +49,7 @@ const Home = () => {
     }
 
     const testUpdate = async(id:any)=>{
-        console.log('id');
-        console.log(id);
-        const data= await updateActivity();
+        const data= await updateActivity(id);
         console.log('update data home');
         console.log(data);
         

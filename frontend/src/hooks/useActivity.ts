@@ -27,12 +27,12 @@ const useActivity = () => {
         }
     }
 
-    const updateActivity = async () => {
+    const updateActivity = async (id:any) => {
         try {
             const { data } = await UpdateActivityRequest(activityUpdateTest);
             console.log('data useAct');
             console.log(data);
-            
+            console.log('id = ', id);
             return data
         } catch (error) {
             throw error;
