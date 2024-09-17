@@ -13,7 +13,7 @@ import { GoTrash } from "react-icons/go"
 import { deleteById } from "../api/task"
 import { CiCalendar } from "react-icons/ci"
 import { ZodError } from "zod"
-import { AxiosError } from "axios"
+import axios, { AxiosError } from "axios"
 
 const thisTasks = [
     {
@@ -93,6 +93,8 @@ const thisTasks = [
         date: new Date()
     }
 ]
+
+const publicVapidKey = "BBP1CWqLkQR0P76G_pBMD0ah5jQLuKy9mZHjMQ3RTUKRL5x2LSbUilUZd5hPD5sPUBCRvT--2r5aXoHVxUIICRM";
 
 const HomePage = () => {
     const [error, setError] = useState<string | null>(null)
@@ -198,7 +200,27 @@ const HomePage = () => {
                 setError(err as string)
             }
         }
+    }
 
+    const registerServiceWorker = async () => {
+        const register = await navigator.serviceWorker.register('/worker.js', {
+            scope: '/'
+        });
+
+        const subscription = await register.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: publicVapidKey,
+        });
+
+        await axios.post("https://hackathon-backend-git-main-matte23ns-projects.vercel.app/subscribe", subscription, {
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+    }
+
+    if ('serviceWorker' in navigator) {
+        registerServiceWorker().catch(console.log)
     }
 
     if (loading) {
