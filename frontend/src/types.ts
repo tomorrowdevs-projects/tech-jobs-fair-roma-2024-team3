@@ -22,6 +22,7 @@ export interface Task {
     name: string
     date: Date
     done: boolean
+    repeat: string
 }
 
 export interface TaskRequest {
@@ -30,4 +31,5 @@ export interface TaskRequest {
     name: string
     date: Date
     done: boolean
+    repeat: string
 }

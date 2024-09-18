@@ -14,7 +14,7 @@ import { deleteById } from "../api/task";
 import { CiCalendar } from "react-icons/ci";
 import { ZodError } from "zod";
 import axios, { AxiosError } from "axios";
-import WeeklyRepeatC from "../components/WeeklyRepeatC";
+// import WeeklyRepeatC from "../components/WeeklyRepeatC";
 
 const publicVapidKey = import.meta.env.VITE_PUBLIC_VAPID_KEY;
 const baseUrl = import.meta.env.VITE_BASE_URL;
@@ -29,12 +29,13 @@ const HomePage = () => {
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [selectedDate, setSelectedDate] = useState<Date>(startDate);
   const [repeat, setRepeat] = useState("No Repeat");
-  const [dailyRepeat, setDailyRepeat] = useState(1);
+//   const [dailyRepeat, setDailyRepeat] = useState(1);
   const [taskRequest, setTaskRequest] = useState<TaskRequest>({
     name: "",
     userId: 0,
     date: selectedDate ?? new Date(),
     done: false,
+    repeat: repeat
   });
   const {
     createTask,
@@ -102,21 +103,15 @@ const HomePage = () => {
   }, [selectedDate, user]);
 
   const isRepeat = (e: any) => {
-    console.log(e.target.value);
     setRepeat(e.target.value);
+    handleInput('repeat', e.target.value);
   };
 
-  const updateWeek = (weeksDayupdate:any[])=>{
-    console.log(weeksDayupdate);
-    
-  }
+  //   const updateWeek = (weeksDayupdate:any[])=>{
+  //     console.log(weeksDayupdate);
+  //   }
 
   const handleInput = (field: string, value: string) => {
-    console.log(field);
-    console.log(value);
-    if (field === "Daily Repeat") setDailyRepeat(parseInt(value));
-    console.log(dailyRepeat);
-
     setError(null);
     setTaskRequest((prevDetails) => ({
       ...prevDetails,
@@ -179,6 +174,25 @@ const HomePage = () => {
       },
     });
   };
+
+  //   const showClock = () => {
+//   let timerArray = [];
+//   for (var i = 0; i < dailyRepeat; i++) {
+//     const singleTimer = (
+//       <Input
+//         id={"timer-" + i}
+//         label={"timer-" + i}
+//         name="timer"
+//         type="time"
+//         value=""
+//         placeholder=""
+//         onChange={handleInput}
+//       />
+//     );
+//     timerArray.push(singleTimer);
+//   }
+  // return timerArray;
+  //   }
 
   if ("serviceWorker" in navigator) {
     registerServiceWorker().catch(console.log);
@@ -360,7 +374,28 @@ const HomePage = () => {
                 </div>
               </div>
 
-              <div className="flex items-center">
+              <div>
+                <form className="max-w-sm mx-auto">
+                  <label
+                    htmlFor="repeat"
+                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  >
+                    Repeat
+                  </label>
+                  <select
+                    id="repeat"
+                    onChange={(e)=>isRepeat(e)}
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  >
+                    <option value='No Repeat' selected>No Repeat</option>
+                    <option value="Daily">Daily</option>
+                    <option value="Weekly">Weekly</option>
+                    <option value="Monthly">Monthly</option>
+                  </select>
+                </form>
+              </div>
+
+              {/* <div className="flex items-center">
                 <input
                   checked={repeat === "No Repeat"}
                   onClick={(e) => {
@@ -413,8 +448,24 @@ const HomePage = () => {
                   Weekly
                 </label>
               </div>
+              <div className="flex items-center">
+                <input
+                  onClick={(e) => isRepeat(e)}
+                  id="repeat-3"
+                  type="radio"
+                  value="Monthly"
+                  name="repeat"
+                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                />
+                <label
+                  htmlFor="repeat-3"
+                  className="text-sm font-medium text-gray-900 ms-2 dark:text-gray-300"
+                >
+                  Monthly
+                </label>
+              </div> */}
 
-              {repeat != "No Repeat" && (
+              {/* {repeat != "No Repeat" && (
                 <div>
                   {repeat === "Daily" && (
                     <div>
@@ -427,13 +478,17 @@ const HomePage = () => {
                         label="How Many Time"
                         id="DailyR"
                       />
+                      <div>
+                        {timerArray}
+                      </div>
                     </div>
                   )}
                   {repeat === "Weekly" && (
                     <WeeklyRepeatC updateWeek={updateWeek} />
                   )}
+
                 </div>
-              )}
+              )} */}
 
               {/* 
                                 <div className="mb-4">
