@@ -13,7 +13,8 @@ import { GoTrash } from "react-icons/go";
 import { deleteById } from "../api/task";
 import { CiCalendar } from "react-icons/ci";
 import { ZodError } from "zod";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios"
+import ApiCaller from "../api/apiCaller"
 
 const publicVapidKey = import.meta.env.VITE_PUBLIC_VAPID_KEY;
 const baseUrl = import.meta.env.VITE_BASE_URL;
@@ -27,7 +28,7 @@ const HomePage = () => {
   const navigate = useNavigate();
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [selectedDate, setSelectedDate] = useState<Date>(startDate);
-  const timer = startDate.getHours() + ":" + startDate.getMinutes();
+//   const timer = startDate.getHours() + ":" + startDate.getMinutes();
   const [taskRequest, setTaskRequest] = useState<TaskRequest>({
     name: "",
     userId: 0,
@@ -65,131 +66,105 @@ const HomePage = () => {
     setStartDate(newStartDate);
   };
 
-  const dates = generateDates(startDate);
-  console.log("dates-----------------");
-  console.log(startDate.getHours() + ":" + startDate.getMinutes());
+    const getTasks = async () => {
+        if (user?.id) {
+            const tasks = await findTasksByUserAndDate(user.id, selectedDate)
+            setTasks(tasks ?? [])
+        }
+    }
+
+    const dates = generateDates(startDate);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
 
-    const getUser = async () => {
-      if (token && !user) {
+        const getUser = async () => {
+            if (token && !user) {
+                try {
+                    const newToken = await login(undefined, token);
+                    localStorage.setItem("token", newToken)
+                    getTasks()
+                } catch (err) {
+                    console.log(err)
+                    localStorage.removeItem("token")
+                    navigate("/")
+                }
+            }
+            if (!token || !user) {
+                navigate("/");
+            }
+        };
+
+        getUser();
+    }, []);
+
+    useEffect(() => {
+        getTasks()
+    }, [selectedDate])
+
+    const handleInput = (field: string, value: string) => {
+        setError(null)
+        setTaskRequest(prevDetails => ({
+            ...prevDetails,
+            [field]: value
+        }));
+    };
+
+    const handleSubmit = async () => {
         try {
-          const newToken = await login(undefined, token);
-          localStorage.setItem("token", newToken);
+            TaskSchema.parse(taskRequest)
+            if (!selectedTask) {
+                const task = await createTask({ ...taskRequest, userId: user?.id as number })
+                setTasks((prevTasks) => [...(prevTasks?.length ? prevTasks : []), task]);
+                setIsOpen(false)
+            } else {
+                const updatedTask = await updateTask({ ...taskRequest, id: selectedTask?.id as number, userId: user?.id as number })
+                setSelectedTask(null)
+                setTasks((prevTasks) =>
+                    prevTasks?.map(task =>
+                        task.id === updatedTask.id ? { ...task, ...updatedTask } : task
+                    )
+                );
+            }
         } catch (err) {
-          console.log(err);
-          localStorage.removeItem("token");
-          navigate("/");
+            if (err instanceof ZodError) {
+                setError(err.errors[0].message)
+            } else if (err instanceof Error) {
+                setError(err.message)
+            } else if (err instanceof AxiosError) {
+                setError("Ops, something went wrong!")
+            } else {
+                setError(err as string)
+            }
         }
-      }
-      if (!token || !user) {
-        navigate("/");
-      }
-    };
-
-    getUser();
-  }, [login, navigate, user]);
-
-  useEffect(() => {
-    const getTasks = async () => {
-      if (user?.id) {
-        const tasks = await findTasksByUserAndDate(user.id, selectedDate);
-        setTasks(tasks ?? []);
-      }
-    };
-
-    getTasks();
-  }, [selectedDate, user]);
-
-  const handleInput = (field: string, value: string) => {
-    console.log(field + " - " + value + " = " + timer);
-    console.log(typeof value);
-    console.log(typeof timer);
-
-    if (field === "timer") {
-      const t1Parts = timer.split(":");
-      const t2Parts = value.split(":");
-      
-      console.log("Primo Passo = " );
-      console.log( t2Parts[0][0]=== '0');
-      if(t2Parts[0][0] === '0') t2Parts[0] = t2Parts[0].substring(1);
-      if(t2Parts[1][0] === '0') t2Parts[1] = t2Parts[1].substring(1);
-      if (t1Parts[0] > t2Parts[0]) console.log("orario indietro nel tempo");
-      else if (t1Parts[0] < t2Parts[0]) console.log(`"orario corretto = " ${t1Parts} - ${t2Parts}`);
-      else {
-        if (t1Parts[1] > t2Parts[1]) console.log("minuti indietro nel tempo");
-        else if (t1Parts[1] < t2Parts[1]) console.log("minuti corretto");
-        else console.log('=======================');
-        
-      }
     }
-    setError(null);
-    setTaskRequest((prevDetails) => ({
-      ...prevDetails,
-      [field]: value,
-    }));
-  };
 
-  const handleSubmit = async () => {
-    try {
-      TaskSchema.parse(taskRequest);
-      if (!selectedTask) {
-        const task = await createTask({
-          ...taskRequest,
-          userId: user?.id as number,
-        });
-        setTasks((prevTasks) => [
-          ...(prevTasks?.length ? prevTasks : []),
-          task,
-        ]);
-        setIsOpen(false);
-      } else {
-        const updatedTask = await updateTask({
-          ...taskRequest,
-          id: selectedTask?.id as number,
-          userId: user?.id as number,
-        });
-        setSelectedTask(null);
-        setTasks((prevTasks) =>
-          prevTasks?.map((task) =>
-            task.id === updatedTask.id ? { ...task, ...updatedTask } : task
-          )
-        );
-      }
-    } catch (err) {
-      if (err instanceof ZodError) {
-        setError(err.errors[0].message);
-      } else if (err instanceof Error) {
-        setError(err.message);
-      } else if (err instanceof AxiosError) {
-        setError("Ops, something went wrong!");
-      } else {
-        setError(err as string);
-      }
-    }
-  };
+    useEffect(() => {
+        const registerServiceWorker = async () => {
+            try {
+                const register = await navigator.serviceWorker.register('/worker.js', {
+                    scope: '/'
+                });
 
-  const registerServiceWorker = async () => {
-    const register = await navigator.serviceWorker.register("/worker.js", {
-      scope: "/",
-    });
+                const subscription = await register.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: publicVapidKey,
+                });
 
-    const subscription = await register.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: publicVapidKey,
-    });
+                await ApiCaller().post(baseUrl + "/subscribe", subscription, {
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                });
+            } catch (err) {
+                console.log(err);
+            }
+        };
 
-    await axios.post(baseUrl + "/subscribe", subscription, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-  };
-
-  if ("serviceWorker" in navigator) {
-    registerServiceWorker().catch(console.log);
-  }
+        if ('serviceWorker' in navigator) {
+            registerServiceWorker();
+        }
+    }, []);
 
   if (loading) {
     return (
@@ -229,6 +204,7 @@ const HomePage = () => {
                       onClick={() => {
                         setSelectedDate(date);
                         setTaskRequest((prev) => ({ ...prev, date }));
+                        
                       }}
                       className={`text-center w-[50px] h-[70px] rounded-full ${
                         isToday || (isToday && isClicked)
@@ -353,6 +329,7 @@ const HomePage = () => {
                   <DatePicker
                     selected={taskRequest.date}
                     dateFormat={"dd/MM/yyyy"}
+                    showTimeSelect
                     onChange={(date) => {
                       setError(null);
                       setTaskRequest((prevDetails) => ({
