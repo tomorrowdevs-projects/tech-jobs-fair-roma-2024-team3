@@ -166,45 +166,47 @@ const HomePage = () => {
             <div className="flex items-center justify-center flex-1">
                 <div className="relative min-h-screen md:w-[600px] flex flex-col w-full border-x-[1px] border-gray-200">
                     <Header logout={logout} navigate={() => navigate("/")} username={user?.name} />
-                    <div className="flex flex-col items-center justify-center gap-2 mt-4">
-                        <p>{startDate.toLocaleString('default', { month: 'long' })}</p>
-                        <div className="flex items-center justify-center w-full">
-                            <button
-                                onClick={handlePrev}
-                                className="text-xl w-[40px] h-[40px] bg-gray-200 rounded-full hover:bg-gray-300 text-center"
-                            >
-                                ←
-                            </button>
-                            <div className="flex gap-1 p-2">
-                                {dates.map((date, index) => {
-                                    const isToday = date.toDateString() === new Date().toDateString()
-                                    const isClicked = date.toDateString() === selectedDate?.toDateString()
-                                    return (
-                                        <button
-                                            key={index}
-                                            onClick={async () => {
-                                                setSelectedDate(date)
-                                                setTaskRequest((prev) => ({ ...prev, date }))
-                                                setTasks([])
-                                            }}
-                                            className={`text-center w-[50px] h-[70px] rounded-full ${isToday || (isToday && isClicked) ? "bg-blue-500 text-white" : ""} ${isClicked && !isToday ? 'border-blue-500 bg-white text-blue-500 border-[1px]' : ''} `}
-                                        >
-                                            <div className="font-bold">{date.getDate()}</div>
-                                            <div className="text-xs">{date.toLocaleString('default', { weekday: 'short' })}</div>
-                                        </button>
-                                    )
-                                })}
+                    {!isChartOpen &&
+                        <div className="flex flex-col items-center justify-center gap-2 mt-4">
+                            <p>{startDate.toLocaleString('default', { month: 'long' })}</p>
+                            <div className="flex items-center justify-center w-full">
+                                <button
+                                    onClick={handlePrev}
+                                    className="text-xl w-[40px] h-[40px] bg-gray-200 rounded-full hover:bg-gray-300 text-center"
+                                >
+                                    ←
+                                </button>
+                                <div className="flex gap-1 p-2">
+                                    {dates.map((date, index) => {
+                                        const isToday = date.toDateString() === new Date().toDateString()
+                                        const isClicked = date.toDateString() === selectedDate?.toDateString()
+                                        return (
+                                            <button
+                                                key={index}
+                                                onClick={async () => {
+                                                    setSelectedDate(date)
+                                                    setTaskRequest((prev) => ({ ...prev, date }))
+                                                    setTasks([])
+                                                }}
+                                                className={`text-center w-[50px] h-[70px] rounded-full ${isToday || (isToday && isClicked) ? "bg-blue-500 text-white" : ""} ${isClicked && !isToday ? 'border-blue-500 bg-white text-blue-500 border-[1px]' : ''} `}
+                                            >
+                                                <div className="font-bold">{date.getDate()}</div>
+                                                <div className="text-xs">{date.toLocaleString('default', { weekday: 'short' })}</div>
+                                            </button>
+                                        )
+                                    })}
+                                </div>
+                                <button
+                                    onClick={handleNext}
+                                    className="text-xl w-[40px] h-[40px] bg-gray-200 rounded-full hover:bg-gray-300"
+                                >
+                                    →
+                                </button>
                             </div>
-                            <button
-                                onClick={handleNext}
-                                className="text-xl w-[40px] h-[40px] bg-gray-200 rounded-full hover:bg-gray-300"
-                            >
-                                →
-                            </button>
                         </div>
-                    </div>
-                    <div onClick={() => setIsChartOpen((prev) => !prev)} className="flex justify-start items-center w-full p-4 pb-0 cursor-pointer">
-                        <p className="italic underline text-blue-500">Show charts</p>
+                    }
+                    <div onClick={() => setIsChartOpen((prev) => !prev)} className="flex justify-start items-center p-4 pb-0">
+                        <p className="italic underline text-blue-500 cursor-pointer">{!isChartOpen ? 'Show' : 'Hide'} charts</p>
                     </div>
                     {isChartOpen ?
                         <Charts /> :
