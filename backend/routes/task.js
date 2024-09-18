@@ -3,9 +3,10 @@ const express = require("express");
 const router = express.Router();
 const Task = require("../models/Task");
 const { Sequelize } = require("sequelize");
+const { verifyToken } = require("../middleware/authMiddleware");
 
 // Crea una nuova attività
-router.post("/create", async (req, res) => {
+router.post("/create", verifyToken, async (req, res) => {
   try {
     const { name, userId, date } = req.body;
     const task = await Task.create({ name, userId, date });
@@ -16,7 +17,7 @@ router.post("/create", async (req, res) => {
 });
 
 // Recupera tutte le attività
-router.get("/all", async (req, res) => {
+router.get("/all", verifyToken, async (req, res) => {
   try {
     const task = await Task.findAll();
     res.json(task);
@@ -26,7 +27,7 @@ router.get("/all", async (req, res) => {
 });
 
 // Recupera tutte le attività di un singolo utente e di un singolo giorno
-router.post("/findByUserIdAndDate", async (req, res) => {
+router.post("/findByUserIdAndDate", verifyToken, async (req, res) => {
   try {
     const { userId, date } = req.body;
     const dataStart = new Date(date).setHours(0, 0, 0, 0);
@@ -47,7 +48,7 @@ router.post("/findByUserIdAndDate", async (req, res) => {
 });
 
 // Elimina una attività
-router.delete("/delete/:id", async (req, res) => {
+router.delete("/delete/:id", verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
     await Task.destroy({ where: { id } });
@@ -58,7 +59,7 @@ router.delete("/delete/:id", async (req, res) => {
 });
 
 // Modifica una attività
-router.put("/update/:id", async (req, res) => {
+router.put("/update/:id", verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { name, done, date } = req.body;
