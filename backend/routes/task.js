@@ -10,6 +10,33 @@ router.post("/create", verifyToken, async (req, res) => {
   try {
     const { name, userId, date } = req.body;
     const task = await Task.create({ name, userId, date });
+    switch (t.repeat) {
+      case "Daily":
+        for (let i = 1; i <= 60; i++) {
+          const newDate = new Date(t.date);
+          newDate.setDate(newDate.getDate() + i);
+          await Task.create({ name: t.name, userId: t.userId, date: newDate, repeat: "None" });
+        }
+        break;
+      case "Weekly":
+        for (let i = 1; i <= 8; i++) {
+          const newDate = new Date(t.date);
+          newDate.setDate(newDate.getDate() + i * 7);
+          await Task.create({ name: t.name, userId: t.userId, date: newDate, repeat: "None" });
+        }
+        break;
+      case "Monthly":
+        for (let i = 1; i <= 3; i++) {
+          const newDate = new Date(t.date);
+          newDate.setMonth(newDate.getMonth() + i);
+          await Task.create({ name: t.name, userId: t.userId, date: newDate, repeat: "None" });
+        }
+        break;
+      case "None":
+        break;
+      default:
+        break;
+    }
     res.status(201).json(task);
   } catch (error) {
     res.status(500).json({ error: "Failed to create new task." });
@@ -19,36 +46,8 @@ router.post("/create", verifyToken, async (req, res) => {
 // Recupera tutte le attività
 router.get("/all", verifyToken, async (req, res) => {
   try {
-    const task = await Task.findAll();
-    var result = [...task];
-    task.forEach((t) => {
-      switch (t.repeat) {
-        case "Daily":
-          for (let i = 1; i <= 60; i++) {
-            const newDate = new Date(t.date);
-            newDate.setDate(newDate.getDate() + i);
-            result.push({ name: t.name, userId: t.userId, date: newDate, repeat: "None" });
-          }
-          break;
-        case "Weekly":
-          for (let i = 1; i <= 8; i++) {
-            const newDate = new Date(t.date);
-            newDate.setDate(newDate.getDate() + i * 7);
-            result.push({ name: t.name, userId: t.userId, date: newDate, repeat: "None" });
-          }
-          break;
-        case "Monthly":
-          for (let i = 1; i <= 3; i++) {
-            const newDate = new Date(t.date);
-            newDate.setMonth(newDate.getMonth() + i);
-            result.push({ name: t.name, userId: t.userId, date: newDate, repeat: "None" });
-          }
-          break;
-        case "None":
-          break;
-      }
-    });
-    res.json(result);
+    const task = await Task.findAll({ where: { userId: req.userId } });
+    res.json(task);
   } catch (error) {
     res.status(500).json({ error: "Failed to get all tasks." });
   }
