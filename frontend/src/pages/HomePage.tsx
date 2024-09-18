@@ -27,12 +27,13 @@ const HomePage = () => {
   const navigate = useNavigate();
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [selectedDate, setSelectedDate] = useState<Date>(startDate);
+  const timer = startDate.getHours() + ":" + startDate.getMinutes();
   const [taskRequest, setTaskRequest] = useState<TaskRequest>({
     name: "",
     userId: 0,
     date: selectedDate ?? new Date(),
     done: false,
-    repeat: 'None'
+    repeat: "None",
   });
   const {
     createTask,
@@ -65,6 +66,8 @@ const HomePage = () => {
   };
 
   const dates = generateDates(startDate);
+  console.log("dates-----------------");
+  console.log(startDate.getHours() + ":" + startDate.getMinutes());
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -100,6 +103,27 @@ const HomePage = () => {
   }, [selectedDate, user]);
 
   const handleInput = (field: string, value: string) => {
+    console.log(field + " - " + value + " = " + timer);
+    console.log(typeof value);
+    console.log(typeof timer);
+
+    if (field === "timer") {
+      const t1Parts = timer.split(":");
+      const t2Parts = value.split(":");
+      
+      console.log("Primo Passo = " );
+      console.log( t2Parts[0][0]=== '0');
+      if(t2Parts[0][0] === '0') t2Parts[0] = t2Parts[0].substring(1);
+      if(t2Parts[1][0] === '0') t2Parts[1] = t2Parts[1].substring(1);
+      if (t1Parts[0] > t2Parts[0]) console.log("orario indietro nel tempo");
+      else if (t1Parts[0] < t2Parts[0]) console.log(`"orario corretto = " ${t1Parts} - ${t2Parts}`);
+      else {
+        if (t1Parts[1] > t2Parts[1]) console.log("minuti indietro nel tempo");
+        else if (t1Parts[1] < t2Parts[1]) console.log("minuti corretto");
+        else console.log('=======================');
+        
+      }
+    }
     setError(null);
     setTaskRequest((prevDetails) => ({
       ...prevDetails,
@@ -344,6 +368,18 @@ const HomePage = () => {
               </div>
 
               <div>
+                <Input
+                  id={"timer"}
+                  label={"timer"}
+                  name="timer"
+                  type="time"
+                  //   value={timer}
+                  placeholder=""
+                  onChange={handleInput}
+                />
+              </div>
+
+              <div>
                 <form className="max-w-sm mx-auto">
                   <label
                     htmlFor="repeat"
@@ -354,10 +390,10 @@ const HomePage = () => {
                   <select
                     id="repeat"
                     defaultValue={taskRequest.repeat}
-                    onChange={(e)=>handleInput('repeat', e.target.value)}
+                    onChange={(e) => handleInput("repeat", e.target.value)}
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   >
-                    <option value='None'>None</option>
+                    <option value="None">None</option>
                     <option value="Daily">Daily</option>
                     <option value="Weekly">Weekly</option>
                     <option value="Monthly">Monthly</option>
