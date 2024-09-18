@@ -14,7 +14,6 @@ import { deleteById } from "../api/task";
 import { CiCalendar } from "react-icons/ci";
 import { ZodError } from "zod";
 import axios, { AxiosError } from "axios";
-// import WeeklyRepeatC from "../components/WeeklyRepeatC";
 
 const publicVapidKey = import.meta.env.VITE_PUBLIC_VAPID_KEY;
 const baseUrl = import.meta.env.VITE_BASE_URL;
@@ -28,14 +27,12 @@ const HomePage = () => {
   const navigate = useNavigate();
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [selectedDate, setSelectedDate] = useState<Date>(startDate);
-  const [repeat, setRepeat] = useState("No Repeat");
-//   const [dailyRepeat, setDailyRepeat] = useState(1);
   const [taskRequest, setTaskRequest] = useState<TaskRequest>({
     name: "",
     userId: 0,
     date: selectedDate ?? new Date(),
     done: false,
-    repeat: repeat
+    repeat: 'None'
   });
   const {
     createTask,
@@ -102,15 +99,6 @@ const HomePage = () => {
     getTasks();
   }, [selectedDate, user]);
 
-  const isRepeat = (e: any) => {
-    setRepeat(e.target.value);
-    handleInput('repeat', e.target.value);
-  };
-
-  //   const updateWeek = (weeksDayupdate:any[])=>{
-  //     console.log(weeksDayupdate);
-  //   }
-
   const handleInput = (field: string, value: string) => {
     setError(null);
     setTaskRequest((prevDetails) => ({
@@ -174,25 +162,6 @@ const HomePage = () => {
       },
     });
   };
-
-  //   const showClock = () => {
-//   let timerArray = [];
-//   for (var i = 0; i < dailyRepeat; i++) {
-//     const singleTimer = (
-//       <Input
-//         id={"timer-" + i}
-//         label={"timer-" + i}
-//         name="timer"
-//         type="time"
-//         value=""
-//         placeholder=""
-//         onChange={handleInput}
-//       />
-//     );
-//     timerArray.push(singleTimer);
-//   }
-  // return timerArray;
-  //   }
 
   if ("serviceWorker" in navigator) {
     registerServiceWorker().catch(console.log);
@@ -384,111 +353,17 @@ const HomePage = () => {
                   </label>
                   <select
                     id="repeat"
-                    onChange={(e)=>isRepeat(e)}
+                    defaultValue={taskRequest.repeat}
+                    onChange={(e)=>handleInput('repeat', e.target.value)}
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   >
-                    <option value='No Repeat' selected>No Repeat</option>
+                    <option value='None'>None</option>
                     <option value="Daily">Daily</option>
                     <option value="Weekly">Weekly</option>
                     <option value="Monthly">Monthly</option>
                   </select>
                 </form>
               </div>
-
-              {/* <div className="flex items-center">
-                <input
-                  checked={repeat === "No Repeat"}
-                  onClick={(e) => {
-                    isRepeat(e);
-                  }}
-                  id="repeat-0"
-                  type="radio"
-                  value="No Repeat"
-                  name="repeat"
-                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                />
-                <label
-                  htmlFor="repeat-0"
-                  className="text-sm font-medium text-gray-900 ms-2 dark:text-gray-300"
-                >
-                  No Repeat
-                </label>
-              </div>
-              <div className="flex items-center mb-4">
-                <input
-                  onClick={(e) => {
-                    isRepeat(e);
-                  }}
-                  id="repeat-1"
-                  type="radio"
-                  value="Daily"
-                  name="repeat"
-                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                />
-                <label
-                  htmlFor="repeat-1"
-                  className="text-sm font-medium text-gray-900 ms-2 dark:text-gray-300"
-                >
-                  Daily
-                </label>
-              </div>
-              <div className="flex items-center">
-                <input
-                  onClick={(e) => isRepeat(e)}
-                  id="repeat-2"
-                  type="radio"
-                  value="Weekly"
-                  name="repeat"
-                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                />
-                <label
-                  htmlFor="repeat-2"
-                  className="text-sm font-medium text-gray-900 ms-2 dark:text-gray-300"
-                >
-                  Weekly
-                </label>
-              </div>
-              <div className="flex items-center">
-                <input
-                  onClick={(e) => isRepeat(e)}
-                  id="repeat-3"
-                  type="radio"
-                  value="Monthly"
-                  name="repeat"
-                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                />
-                <label
-                  htmlFor="repeat-3"
-                  className="text-sm font-medium text-gray-900 ms-2 dark:text-gray-300"
-                >
-                  Monthly
-                </label>
-              </div> */}
-
-              {/* {repeat != "No Repeat" && (
-                <div>
-                  {repeat === "Daily" && (
-                    <div>
-                      <Input
-                        onChange={handleInput}
-                        placeholder=""
-                        value={dailyRepeat.toString()}
-                        type="number"
-                        name="Daily Repeat"
-                        label="How Many Time"
-                        id="DailyR"
-                      />
-                      <div>
-                        {timerArray}
-                      </div>
-                    </div>
-                  )}
-                  {repeat === "Weekly" && (
-                    <WeeklyRepeatC updateWeek={updateWeek} />
-                  )}
-
-                </div>
-              )} */}
 
               {/* 
                                 <div className="mb-4">
