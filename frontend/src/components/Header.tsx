@@ -9,7 +9,7 @@ interface Props {
 const Header = ({ logout, navigate, username }: Props) => {
     return (
         <div className="flex justify-between items-center w-full px-4 pt-4">
-            {username && <p className="text-[40px] md:text-[50px] font-semibold">Hi, {username} &#128075;</p>}
+            {username && <p className="text-[40px] md:text-[24px] font-semibold">Hi, {username} &#128075;</p>}
             <button
                 onClick={() => {
                     logout()

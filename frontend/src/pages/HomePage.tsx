@@ -9,10 +9,11 @@ import useTask, { TaskSchema } from "../hooks/useTask"
 import "react-datepicker/dist/react-datepicker.css";
 import { deleteById } from "../api/task"
 import { ZodError } from "zod"
-import axios, { AxiosError } from "axios"
+import { AxiosError } from "axios"
 import TaskCard from "../components/TaskCard"
 import TaskModal from "../components/TaskModal"
 import Charts from "../components/Charts"
+import ApiCaller from "../api/apiCaller"
 
 const publicVapidKey = import.meta.env.VITE_PUBLIC_VAPID_KEY;
 const baseUrl = import.meta.env.VITE_BASE_URL
@@ -137,7 +138,7 @@ const HomePage = () => {
                     applicationServerKey: publicVapidKey,
                 });
 
-                await axios.post(baseUrl + "/subscribe", subscription, {
+                await ApiCaller().post(baseUrl + "/subscribe", subscription, {
                     headers: {
                         "Content-Type": "application/json"
                     }
