@@ -58,16 +58,13 @@ router.get("/all", verifyToken, async (req, res) => {
 // Recupera tutte le attività di un singolo utente e di un singolo giorno
 router.post("/userTasksByDate", verifyToken, async (req, res) => {
   try {
-    const { userId, date } = req.body;
+    const { date } = req.body;
     const tokenUserId = req.userId;
-    if (tokenUserId !== userId) {
-      return res.status(403).json({ error: "Unauthorized access." });
-    }
     const dataStart = new Date(date).setHours(0, 0, 0, 0);
     const dataEnd = new Date(date).setHours(23, 59, 59, 59);
     const tasks = await Task.findAll({
       where: {
-        userId,
+        userId: tokenUserId,
         date: {
           [Sequelize.Op.gt]: dataStart,
           [Sequelize.Op.lt]: dataEnd,
