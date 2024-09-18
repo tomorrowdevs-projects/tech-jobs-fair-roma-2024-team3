@@ -6,7 +6,7 @@ const sequelize = new Sequelize(process.env.POSTGRES_URL, {
   // dialectModule: pg
 });
 
-class Task extends Model {}
+class Task extends Model { }
 Task.init(
   {
     userId: {
@@ -19,6 +19,10 @@ Task.init(
     },
     name: {
       type: DataTypes.STRING,
+      allowNull: false,
+    },
+    repeat: {
+      type: DataTypes.ENUM("None", "Daily", "Weekly", "Monthly", "Yearly"),
       allowNull: false,
     },
     done: {
