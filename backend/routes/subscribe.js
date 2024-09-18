@@ -24,11 +24,10 @@ router.post("/", (req, res) => {
   res.status(201).json({});
 });
 
-// Regex per controllo formato email
-function sendNotification(payload) {
+function sendNotificationToUser(payload) {
   subscriptions.forEach((subscription) => {
     webpush.sendNotification(subscription, payload).catch(console.log);
   });
 }
 
-module.exports = {router, sendNotification};
+module.exports = { router, sendNotificationToUser };

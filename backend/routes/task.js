@@ -4,32 +4,33 @@ const router = express.Router();
 const Task = require("../models/Task");
 const { Sequelize } = require("sequelize");
 const { verifyToken } = require("../middleware/authMiddleware");
+const scheduleTask = require("../scheduler");
 
 // Crea una nuova attività
 router.post("/create", verifyToken, async (req, res) => {
   try {
-    const { name, userId, date } = req.body;
-    const task = await Task.create({ name, userId, date });
-    switch (t.repeat) {
+    const { name, userId, date, repeat } = req.body;
+    const task = await Task.create({ name, userId, date, repeat });
+    const newDate = new Date(date);
+    switch (repeat) {
       case "Daily":
         for (let i = 1; i <= 60; i++) {
-          const newDate = new Date(t.date);
           newDate.setDate(newDate.getDate() + i);
-          await Task.create({ name: t.name, userId: t.userId, date: newDate, repeat: "None" });
+          await Task.create({ name: name, userId: userId, date: newDate, repeat: "None" });
         }
         break;
       case "Weekly":
         for (let i = 1; i <= 8; i++) {
-          const newDate = new Date(t.date);
+          const newDate = new Date(date);
           newDate.setDate(newDate.getDate() + i * 7);
-          await Task.create({ name: t.name, userId: t.userId, date: newDate, repeat: "None" });
+          await Task.create({ name: name, userId: userId, date: newDate, repeat: "None" });
         }
         break;
       case "Monthly":
         for (let i = 1; i <= 3; i++) {
-          const newDate = new Date(t.date);
+          const newDate = new Date(date);
           newDate.setMonth(newDate.getMonth() + i);
-          await Task.create({ name: t.name, userId: t.userId, date: newDate, repeat: "None" });
+          await Task.create({ name: name, userId: userId, date: newDate, repeat: "None" });
         }
         break;
       case "None":
@@ -37,6 +38,7 @@ router.post("/create", verifyToken, async (req, res) => {
       default:
         break;
     }
+    scheduleTask(new Date(date), repeat, name);
     res.status(201).json(task);
   } catch (error) {
     res.status(500).json({ error: "Failed to create new task." });
@@ -54,7 +56,7 @@ router.get("/all", verifyToken, async (req, res) => {
 });
 
 // Recupera tutte le attività di un singolo utente e di un singolo giorno
-router.post("/findByUserIdAndDate", verifyToken, async (req, res) => {
+router.post("/userTasksByDate", verifyToken, async (req, res) => {
   try {
     const { userId, date } = req.body;
     const tokenUserId = req.userId;
