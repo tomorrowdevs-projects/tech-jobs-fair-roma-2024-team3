@@ -1,19 +1,18 @@
-import { Fragment, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import useAuth from "../hooks/useAuth"
 import { FiPlus } from "react-icons/fi"
 import Spinner from "../components/Spinner"
 import Header from "../components/Header"
 import { Task, TaskRequest } from "../types"
-import Input from "../components/Input"
 import useTask, { TaskSchema } from "../hooks/useTask"
-import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css";
-import { GoTrash } from "react-icons/go"
 import { deleteById } from "../api/task"
-import { CiCalendar } from "react-icons/ci"
 import { ZodError } from "zod"
 import axios, { AxiosError } from "axios"
+import TaskCard from "../components/TaskCard"
+import TaskModal from "../components/TaskModal"
+import Charts from "../components/Charts"
 
 const publicVapidKey = import.meta.env.VITE_PUBLIC_VAPID_KEY;
 const baseUrl = import.meta.env.VITE_BASE_URL
@@ -21,6 +20,7 @@ const baseUrl = import.meta.env.VITE_BASE_URL
 const HomePage = () => {
     const [error, setError] = useState<string | null>(null)
     const [isOpen, setIsOpen] = useState<boolean>(false)
+    const [isChartOpen, setIsChartOpen] = useState<boolean>(false)
     const [selectedTask, setSelectedTask] = useState<Task | null>(null)
     const [tasks, setTasks] = useState<Task[]>([])
     const { user, login, loading, logout } = useAuth()
@@ -161,7 +161,7 @@ const HomePage = () => {
     }
 
     return (
-        <Fragment>
+        <>
             <div className="flex items-center justify-center flex-1">
                 <div className="relative min-h-screen md:w-[600px] flex flex-col w-full border-x-[1px] border-gray-200">
                     <Header logout={logout} navigate={() => navigate("/")} username={user?.name} />
@@ -202,134 +202,65 @@ const HomePage = () => {
                             </button>
                         </div>
                     </div>
-                    <div className="px-4 mt-8">
-                        {tasks?.length ? tasks?.map((t) => {
-                            return (
-                                <div key={t.id} onClick={() => setSelectedTask(t)} className={`${t.done ? "line-through bg-blue-500 text-white" : "bg-white border-blue-500 text-blue-500"} font-medium p-4 w-full border-[1px] rounded-md shadow-lg mt-4 cursor-pointer flex justify-between items-center`}>
-                                    <div className="flex justify-center items-center gap-4">
-                                        <div
-                                            className={`bg-white w-4 h-4 border-[1px] border-blue-500 rounded-md`}
-                                            onClick={(e) => {
-                                                e.stopPropagation()
-                                                const completedTask = { ...t, done: !t.done }
-                                                updateTask(completedTask)
-                                                setTasks((prevTasks) =>
-                                                    prevTasks?.map(task =>
-                                                        task.id === completedTask.id ? { ...task, ...completedTask } : task
-                                                    )
-                                                );
-                                            }}
-                                        />
-                                        <p>{t.name}</p>
-                                    </div>
-                                    <button onClick={async (e) => {
-                                        e.stopPropagation()
-                                        deleteById(t.id)
-                                        setTasks((prevTasks) =>
-                                            prevTasks?.filter(task =>
-                                                task.id !== t.id
-                                            )
-                                        );
-                                    }}>
-                                        <GoTrash size={20} />
-                                    </button>
-                                </div>
-                            )
-                        }) : taskLoading ?
-                            <div className="w-full flex justify-center items-center">
-                                <Spinner isInverted />
-                            </div> :
-                            <p className="w-full text-center">No tasks for this day</p>
-                        }
+                    <div onClick={() => setIsChartOpen((prev) => !prev)} className="flex justify-start items-center w-full p-4 pb-0 cursor-pointer">
+                        <p className="italic underline text-blue-500">Show charts</p>
                     </div>
-
-                    <button
-                        type="button"
-                        onClick={() => {
-                            setError(null)
-                            if (selectedTask) {
-                                setSelectedTask(null)
-                            } else {
-                                setIsOpen((prev) => !prev)
+                    {isChartOpen ?
+                        <Charts /> :
+                        <div className="px-4 mt-8">
+                            {tasks?.length ? tasks?.map((t) => (
+                                <TaskCard
+                                    key={t.id}
+                                    task={t}
+                                    setSelectedTask={setSelectedTask}
+                                    updateTask={updateTask}
+                                    setTasks={setTasks}
+                                    deleteById={deleteById}
+                                />
+                            )) : taskLoading ?
+                                <div className="w-full flex justify-center items-center">
+                                    <Spinner isInverted />
+                                </div> :
+                                <p className="w-full text-center">No tasks for this day</p>
                             }
-                        }}
-                        className={`fixed flex justify-center items-center shadow-xl bottom-6 right-6 md:right-1/2 md:translate-x-[280px] rounded-full
+                        </div>
+                    }
+
+                    {!isChartOpen &&
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setError(null)
+                                if (selectedTask) {
+                                    setSelectedTask(null)
+                                } else {
+                                    setIsOpen((prev) => !prev)
+                                }
+                            }}
+                            className={`fixed flex justify-center items-center shadow-xl bottom-6 right-6 md:right-1/2 md:translate-x-[280px] rounded-full
                             ${(isOpen || selectedTask)
-                                ? "bg-red-500 transition duration-300 ease-in-out transform rotate-45"
-                                : "bg-blue-500 transition duration-300 ease-in-out transform rotate-0"
-                            } text-white z-30 w-[70px] h-[70px]`}
-                    >
-                        <FiPlus size={35} />
-                    </button>
+                                    ? "bg-red-500 transition duration-300 ease-in-out transform rotate-45"
+                                    : "bg-blue-500 transition duration-300 ease-in-out transform rotate-0"
+                                } text-white z-30 w-[70px] h-[70px]`}
+                        >
+                            <FiPlus size={35} />
+                        </button>
+                    }
                 </div>
             </div>
             {(isOpen || selectedTask) && (
-                <Fragment>
-                    <div className="absolute top-0 left-0 z-10 w-full h-screen bg-black opacity-30" />
-                    <div className="absolute top-0 left-0 z-20 flex items-center justify-center w-full h-screen">
-                        <div className="p-4 bg-white rounded-lg shadow-lg w-96">
-                            <h2 className="mb-6 text-2xl font-bold text-center">
-                                {selectedTask ? `Update ${selectedTask.name}` : 'Add new task'}
-                            </h2>
-
-                            <div className="mb-4">
-                                <Input id="name" name="name" label="Name" placeholder="Enter task name" onChange={handleInput} />
-                            </div>
-
-                            <div className="mb-4">
-                                <label className="block mb-2 text-sm font-bold text-gray-700" htmlFor="password">
-                                    Pick a date
-                                </label>
-                                <div className="py-[6px] px-2 border-[1px] border-gray-200 shadow-md rounded-md relative">
-                                    <DatePicker
-                                        selected={taskRequest.date}
-                                        dateFormat={"dd/MM/yyyy"}
-                                        onChange={(date) => {
-                                            setError(null)
-                                            setTaskRequest((prevDetails) => ({
-                                                ...prevDetails,
-                                                date: date as Date
-                                            }))
-                                        }}
-                                    />
-                                    <span className="absolute top-[8px] right-2">
-                                        <CiCalendar size={20} />
-                                    </span>
-                                </div>
-                            </div>
-
-                            {/* 
-                                <div className="mb-4">
-                                    <label className="block mb-2 text-sm font-bold text-gray-700" htmlFor="confirm-password">
-                                        Recursive
-                                    </label>
-                                    <select
-                                        id="recursive"
-                                        name="recursive"
-                                        value={signUpDetails.confirmPassword}
-                                        className="w-full px-3 py-2 leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
-                                        placeholder="Confirm your password"
-                                        onChange={(e) => handleInput(e.currentTarget.name, e.currentTarget.value)}
-                                    />
-                                </div> 
-                            */}
-
-                            {error && <p className="text-red-500 mb-4">{error}</p>}
-
-                            <button
-                                disabled={taskLoading}
-                                className="flex items-center justify-center w-full px-4 py-2 font-bold text-white bg-blue-500 rounded md:hover:bg-blue-700 focus:outline-none focus:shadow-outline"
-                                onClick={handleSubmit}
-                            >
-                                {taskLoading ? <Spinner /> : null}
-                                {!taskLoading ? selectedTask ? 'Update' : 'Create' : null}
-                            </button>
-                        </div>
-                    </div>
-                </Fragment>
-            )
-            }
-        </Fragment >
+                <TaskModal
+                    selectedTask={selectedTask as Task}
+                    setTaskRequest={setTaskRequest}
+                    taskRequest={taskRequest}
+                    error={error as string}
+                    setError={setError}
+                    taskLoading={taskLoading}
+                    handleInput={handleInput}
+                    handleSubmit={handleSubmit}
+                />
+            )}
+        </>
     )
 }
 
