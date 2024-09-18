@@ -84,6 +84,10 @@ const HomePage = () => {
         getUser();
     }, []);
 
+    useEffect(() => {
+        getTasks()
+    }, [selectedDate])
+
     const handleInput = (field: string, value: string) => {
         setError(null)
         setTaskRequest(prevDetails => ({
@@ -180,7 +184,7 @@ const HomePage = () => {
                                             onClick={async () => {
                                                 setSelectedDate(date)
                                                 setTaskRequest((prev) => ({ ...prev, date }))
-                                                await getTasks()
+                                                setTasks([])
                                             }}
                                             className={`text-center w-[50px] h-[70px] rounded-full ${isToday || (isToday && isClicked) ? "bg-blue-500 text-white" : ""} ${isClicked && !isToday ? 'border-blue-500 bg-white text-blue-500 border-[1px]' : ''} `}
                                         >
@@ -199,7 +203,7 @@ const HomePage = () => {
                         </div>
                     </div>
                     <div className="px-4 mt-8">
-                        {tasks?.map((t) => {
+                        {tasks?.length ? tasks?.map((t) => {
                             return (
                                 <div key={t.id} onClick={() => setSelectedTask(t)} className={`${t.done ? "line-through bg-blue-500 text-white" : "bg-white border-blue-500 text-blue-500"} font-medium p-4 w-full border-[1px] rounded-md shadow-lg mt-4 cursor-pointer flex justify-between items-center`}>
                                     <div className="flex justify-center items-center gap-4">
@@ -231,7 +235,12 @@ const HomePage = () => {
                                     </button>
                                 </div>
                             )
-                        })}
+                        }) : taskLoading ?
+                            <div className="w-full flex justify-center items-center">
+                                <Spinner isInverted />
+                            </div> :
+                            <p className="w-full text-center">No tasks for this day</p>
+                        }
                     </div>
 
                     <button
