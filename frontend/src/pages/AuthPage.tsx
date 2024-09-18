@@ -123,7 +123,7 @@ const AuthPage: React.FC = () => {
                     </div>
 
                     {!isLogin && (
-                        <div className="mb-4">
+                        <div className="mb-4 relative">
                             <Input
                                 id="confirm-password"
                                 type="password"
@@ -133,6 +133,11 @@ const AuthPage: React.FC = () => {
                                 placeholder="Confirm your password"
                                 onChange={handleInput}
                             />
+                            <div className='absolute top-[26px] right-0 flex justify-center items-center p-2' onClick={() => setIsPasswordShown((prev) => !prev)}>
+                                {!isPasswordShown ? <PiEyeClosed size={25} color='#374151' /> :
+                                    <PiEyeBold size={25} color='#374151' />
+                                }
+                            </div>
                         </div>
                     )}
 
