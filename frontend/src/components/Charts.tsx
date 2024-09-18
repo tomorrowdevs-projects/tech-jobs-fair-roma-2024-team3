@@ -87,7 +87,7 @@ const pieChartData = [
 const Charts = () => {
     return (
         <div className="flex flex-col justify-center md:items-center items-start w-full pb-4">
-            <p>Done vs Undone</p>
+            <p className="text-center w-full">Done vs Undone</p>
             <ResponsiveContainer width={"100%"} height={300} style={{ marginLeft: -20 }}>
                 <BarChart
                     data={barChartData}
@@ -103,7 +103,7 @@ const Charts = () => {
                     <Bar dataKey="completed" fill="#ef4444" />
                 </BarChart>
             </ResponsiveContainer>
-            <p className="mt-4">Number of tasks by time</p>
+            <p className="text-center w-full mt-4">Number of tasks by time</p>
             <ResponsiveContainer width="100%" height={300} style={{ marginLeft: -20 }}>
                 <LineChart
                     data={lineChartData}
@@ -119,7 +119,7 @@ const Charts = () => {
                     <Line type="monotone" dataKey="registered" stroke="#3b82f6" />
                 </LineChart>
             </ResponsiveContainer>
-            <p>Most repeated tasks</p>
+            <p className="text-center w-full">Most repeated tasks</p>
             <ResponsiveContainer width="100%" height={200}>
                 <PieChart>
                     <Pie
