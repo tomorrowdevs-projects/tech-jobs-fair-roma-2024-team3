@@ -13,7 +13,8 @@ import { GoTrash } from "react-icons/go"
 import { deleteById } from "../api/task"
 import { CiCalendar } from "react-icons/ci"
 import { ZodError } from "zod"
-import axios, { AxiosError } from "axios"
+import { AxiosError } from "axios"
+import ApiCaller from "../api/apiCaller"
 
 const publicVapidKey = import.meta.env.VITE_PUBLIC_VAPID_KEY;
 const baseUrl = import.meta.env.VITE_BASE_URL
@@ -137,7 +138,7 @@ const HomePage = () => {
                     applicationServerKey: publicVapidKey,
                 });
 
-                await axios.post(baseUrl + "/subscribe", subscription, {
+                await ApiCaller().post(baseUrl + "/subscribe", subscription, {
                     headers: {
                         "Content-Type": "application/json"
                     }
