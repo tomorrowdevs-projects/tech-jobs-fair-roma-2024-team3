@@ -336,7 +336,7 @@ const HomePage = () => {
                   <DatePicker
                     selected={taskRequest.date}
                     dateFormat={"dd/MM/yyyy HH:mm"}
-                    showTimeSelect
+                    // showTimeSelect
                     onChange={(date) => {
                       setError(null);
                       setTaskRequest((prevDetails) => ({
@@ -344,6 +344,32 @@ const HomePage = () => {
                         date: date as Date,
                       }));
                     }}
+                    className="text-success"//campo data ora formato dd/mm/yyy HH:mm
+                    // calendarIconClassName="bg-lime-500"
+                    // popperClassName="bg-lime-500"
+                    // wrapperClassName="bg-lime-500"
+                    // calendarClassName="bg-lime-500"//campo che mostra i giorni del mese
+                    timeClassName={(time)=>{console.log(time);
+                     return `
+                     bg-lime-700
+                     w-full
+                     time.getHours() > 12 ? "text-success" : "text-error";
+                     `
+                    }}//tag li - time list di ogni ora
+                    // timeInputLabel="bg-lime-500"
+                    // timeCaption="Gio"//cambia la label time
+                    showTimeInput
+                    // customTimeInput={
+                    //   <Input
+                    //   id="timerIn"
+                    //   label=""
+                    //   name="timer"
+                    //   type="timer"
+                    //   value="00:01"
+                    //   placeholder=""
+                    //   onChange={handleInput}
+                    //   ></Input>
+                    // }
                   />
                   <span className="absolute top-[8px] right-2">
                     <CiCalendar size={20} />
