@@ -48,7 +48,6 @@ const HomePage = () => {
     loading: taskLoading,
   } = useTask();
 
-
   const generateDates = (start: Date) => {
     const dates = [];
     for (let i = 0; i < 5; i++) {
@@ -88,7 +87,7 @@ const HomePage = () => {
     const getUser = async () => {
       if (token && !user) {
         try {
-          const newToken = await login(undefined, token);
+          const newToken = await login();
           localStorage.setItem("token", newToken)
           getTasks()
         } catch (err) {
