@@ -11,10 +11,10 @@ router.post("/create", verifyToken, async (req, res) => {
   try {
     const { name, userId, date, repeat } = req.body;
     const task = await Task.create({ name, userId, date, repeat });
-    const newDate = new Date(date);
     switch (repeat) {
       case "Daily":
         for (let i = 1; i <= 60; i++) {
+          const newDate = new Date(date);
           newDate.setDate(newDate.getDate() + i);
           await Task.create({ name: name, userId: userId, date: newDate, repeat: "None" });
         }
