@@ -111,7 +111,11 @@ const HomePage = () => {
     };
 
     const handleSubmit = async () => {
+      console.log('taskRequest');
+      console.log(taskRequest);
         try {
+          console.log('try start');
+          
             TaskSchema.parse(taskRequest)
             if (!selectedTask) {
                 const task = await createTask({ ...taskRequest, userId: user?.id as number })
@@ -127,6 +131,9 @@ const HomePage = () => {
                 );
             }
         } catch (err) {
+          console.log('catch');
+          console.log(err);
+          
             if (err instanceof ZodError) {
                 setError(err.errors[0].message)
             } else if (err instanceof Error) {
@@ -328,7 +335,7 @@ const HomePage = () => {
                 <div className="py-[6px] px-2 border-[1px] border-gray-200 shadow-md rounded-md relative">
                   <DatePicker
                     selected={taskRequest.date}
-                    dateFormat={"dd/MM/yyyy"}
+                    dateFormat={"dd/MM/yyyy HH:mm"}
                     showTimeSelect
                     onChange={(date) => {
                       setError(null);
@@ -344,7 +351,7 @@ const HomePage = () => {
                 </div>
               </div>
 
-              <div>
+              {/* <div>
                 <Input
                   id={"timer"}
                   label={"timer"}
@@ -354,7 +361,7 @@ const HomePage = () => {
                   placeholder=""
                   onChange={handleInput}
                 />
-              </div>
+              </div> */}
 
               <div>
                 <form className="max-w-sm mx-auto">
