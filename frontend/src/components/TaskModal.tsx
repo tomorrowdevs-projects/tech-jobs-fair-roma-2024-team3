@@ -28,8 +28,8 @@ const TaskModal = ({ selectedTask, setTaskRequest, taskRequest, error, setError,
                     <Input id="name" name="name" label="Name" placeholder="Enter task name" onChange={handleInput} />
                 </div>
 
-                <div className="mb-4">
-                    <label className="block mb-2 text-sm font-bold text-gray-700" htmlFor="password">
+                <div className="mb-4 w-full">
+                    <label className="block mb-2 text-sm font-bold text-gray-700">
                         Pick a date
                     </label>
                     <div className="py-[6px] px-2 border-[1px] border-gray-200 shadow-md rounded-md relative">
@@ -52,17 +52,14 @@ const TaskModal = ({ selectedTask, setTaskRequest, taskRequest, error, setError,
                 </div>
 
                 <div className="mb-4">
-                    <label
-                        htmlFor="repeat"
-                        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                    >
+                    <label className="block mb-2 text-sm font-bold text-gray-700">
                         Repeat
                     </label>
                     <select
                         id="repeat"
-                        defaultValue={taskRequest.repeat}
+                        defaultValue={selectedTask ? selectedTask.repeat : taskRequest.repeat}
                         onChange={(e) => handleInput("repeat", e.target.value)}
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     >
                         <option value="None">None</option>
                         <option value="Daily">Daily</option>

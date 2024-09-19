@@ -26,6 +26,7 @@ const TaskCard = ({ task, setSelectedTask, updateTask, setTasks, deleteById }: P
                 }}
             />
             <p>{task.name}</p>
+            <p>{`${new Date(task?.date)?.getHours()}:${new Date(task?.date)?.getMinutes()}`}</p>
         </div>
         <button onClick={async (e) => {
             e.stopPropagation()

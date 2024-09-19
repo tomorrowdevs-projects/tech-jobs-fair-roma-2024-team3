@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import { FiPlus } from "react-icons/fi";
@@ -116,6 +116,13 @@ const HomePage = () => {
         const task = await createTask({ ...taskRequest, userId: user?.id as number })
         setTasks((prevTasks) => [...(prevTasks?.length ? prevTasks : []), task]);
         setIsOpen(false)
+        setTaskRequest({
+          name: "",
+          userId: 0,
+          date: selectedDate ?? new Date(),
+          done: false,
+          repeat: "None",
+        })
       } else {
         const updatedTask = await updateTask({ ...taskRequest, id: selectedTask?.id as number, userId: user?.id as number })
         setSelectedTask(null)
@@ -164,6 +171,14 @@ const HomePage = () => {
       registerServiceWorker();
     }
   }, []);
+
+  const sortedTasks = useMemo(() => {
+    return tasks?.slice().sort((a, b) => {
+      const dateA = new Date(a.date).getTime(); // Convert to timestamp if needed
+      const dateB = new Date(b.date).getTime();
+      return dateA - dateB;
+    }) || [];
+  }, [tasks])
 
   if (loading) {
     return (
@@ -227,20 +242,21 @@ const HomePage = () => {
           {isChartOpen ?
             <Charts /> :
             <div className="px-4 mt-8">
-              {tasks?.length ? tasks?.map((t) => (
-                <TaskCard
-                  key={t.id}
-                  task={t}
-                  setSelectedTask={setSelectedTask}
-                  updateTask={updateTask}
-                  setTasks={setTasks}
-                  deleteById={deleteById}
-                />
-              )) : taskLoading ?
-                <div className="w-full flex justify-center items-center">
-                  <Spinner isInverted />
-                </div> :
-                <p className="w-full text-center">No tasks for this day</p>
+              {sortedTasks?.length ?
+                sortedTasks?.map((t) => (
+                  <TaskCard
+                    key={t.id}
+                    task={t}
+                    setSelectedTask={setSelectedTask}
+                    updateTask={updateTask}
+                    setTasks={setTasks}
+                    deleteById={deleteById}
+                  />
+                )) : taskLoading ?
+                  <div className="w-full flex justify-center items-center">
+                    <Spinner isInverted />
+                  </div> :
+                  <p className="w-full text-center">No tasks for this day</p>
               }
             </div>
           }
