@@ -5,7 +5,6 @@ import { ZodError } from "zod"
 import { AxiosError } from "axios"
 import { Task, TaskRequest } from "../types";
 import useTask, { TaskSchema } from "../hooks/useTask";
-import { deleteById } from "../api/task"
 import ApiCaller from "../api/apiCaller"
 import Spinner from "../components/Spinner";
 import Header from "../components/Header";
@@ -23,6 +22,7 @@ const HomePage = () => {
   const [error, setError] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [allTasks, setAllTasks] = useState<Task[]>([])
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isChartOpen, setIsChartOpen] = useState<boolean>(false)
   const [startDate, setStartDate] = useState<Date>(new Date());
@@ -45,6 +45,8 @@ const HomePage = () => {
     createTask,
     updateTask,
     findTasksByUserAndDate,
+    deleteTask,
+    findTasks,
     loading: taskLoading,
   } = useTask();
 
@@ -70,6 +72,10 @@ const HomePage = () => {
     setStartDate(newStartDate);
   };
 
+  const dates = useMemo(() => {
+    return generateDates(startDate)
+  }, [startDate])
+
   const getTasks = async () => {
     if (user?.id) {
       const tasks = await findTasksByUserAndDate(user.id, selectedDate)
@@ -77,9 +83,11 @@ const HomePage = () => {
     }
   }
 
-  const dates = useMemo(() => {
-    return generateDates(startDate)
-  }, [startDate])
+  const getAllTasks = async () => {
+    const allUserTasks = await findTasks()
+    console.log(allUserTasks)
+    setAllTasks(allUserTasks ?? [])
+  }
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -89,7 +97,8 @@ const HomePage = () => {
         try {
           const newToken = await login();
           localStorage.setItem("token", newToken)
-          getTasks()
+          await getTasks()
+          await getAllTasks()
         } catch (err) {
           console.log(err)
           localStorage.removeItem("token")
@@ -160,6 +169,7 @@ const HomePage = () => {
           done: false,
           repeat: "None",
         })
+        getAllTasks()
       } else {
         const updatedTask = await updateTask({ ...taskRequest, id: selectedTask?.id as number, userId: user?.id as number })
         setSelectedTask(null)
@@ -168,6 +178,7 @@ const HomePage = () => {
             task.id === updatedTask.id ? { ...task, ...updatedTask } : task
           )
         );
+        getAllTasks()
       }
     } catch (err) {
       if (err instanceof ZodError) {
@@ -195,7 +206,7 @@ const HomePage = () => {
   return (
     <Fragment>
       <div className="flex items-center justify-center flex-1">
-        <div className="relative min-h-screen md:w-[600px] flex flex-col w-full border-x-[1px] border-gray-200">
+        <div className="relative min-h-screen md:max-w-[600px] flex flex-col w-full border-x-[1px] border-gray-200">
           <Header
             logout={logout}
             navigate={() => navigate("/")}
@@ -213,11 +224,11 @@ const HomePage = () => {
               setTasks={setTasks}
             />
           }
-          <div onClick={() => setIsChartOpen((prev) => !prev)} className="flex items-center justify-start p-4 pb-0">
-            <p className="italic text-blue-500 underline cursor-pointer">{!isChartOpen ? 'Show' : 'Hide'} charts</p>
+          <div className="flex items-center justify-start p-4 pb-0">
+            <p onClick={() => setIsChartOpen((prev) => !prev)} className="italic text-blue-500 underline cursor-pointer">{!isChartOpen ? 'Show' : 'Hide'} charts</p>
           </div>
           {isChartOpen ?
-            <Charts /> :
+            <Charts allTasks={allTasks} /> :
             <div className="px-4 mt-8">
               {sortedTasks?.length ?
                 sortedTasks?.map((t) => (
@@ -227,7 +238,7 @@ const HomePage = () => {
                     setSelectedTask={setSelectedTask}
                     updateTask={updateTask}
                     setTasks={setTasks}
-                    deleteById={deleteById}
+                    deleteTask={deleteTask}
                   />
                 )) : taskLoading ?
                   <div className="flex items-center justify-center w-full">

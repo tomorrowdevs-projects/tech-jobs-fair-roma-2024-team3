@@ -1,4 +1,5 @@
 import { Bar, BarChart, CartesianGrid, Line, LineChart, Pie, PieChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
+import { Task } from "../types";
 
 // interface Props {
 //     data: []
@@ -84,7 +85,8 @@ const pieChartData = [
     },
 ];
 
-const Charts = () => {
+const Charts = ({ allTasks }: { allTasks: Task[] }) => {
+    console.log(allTasks)
     return (
         <div className="flex flex-col justify-center md:items-center items-start w-full pb-4">
             <p className="text-center w-full">Done vs Undone</p>
