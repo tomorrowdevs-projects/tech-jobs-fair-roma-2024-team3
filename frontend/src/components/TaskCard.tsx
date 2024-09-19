@@ -19,8 +19,8 @@ const TaskCard = ({ task, setSelectedTask, updateTask, setTasks, deleteById }: P
                     const completedTask = { ...task, done: !task.done }
                     updateTask(completedTask)
                     setTasks((prevTasks: Task[]) =>
-                        prevTasks?.map(task =>
-                            task.id === completedTask.id ? { ...task, ...completedTask } : task
+                        prevTasks?.map(prevTasks =>
+                            prevTasks.id === completedTask.id ? { ...task, ...completedTask } : prevTasks
                         )
                     );
                 }}
