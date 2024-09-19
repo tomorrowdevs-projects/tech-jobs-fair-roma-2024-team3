@@ -6,7 +6,7 @@ import { z } from "zod";
 export const TaskSchema = z.object({
     name: z.string()
         .min(1, { message: "Name is required" }),
-    date: z.date().refine((date)=>date>=new Date(),{
+    date: z.date().refine((date) => date >= new Date(), {
         message: "Date must be today or in the future.",
     })
 });
@@ -47,7 +47,7 @@ const useTask = () => {
     }
 
     const createTask = async (task: TaskRequest) => {
-        
+
         try {
             setLoading(true)
             const { data } = await create(task);
