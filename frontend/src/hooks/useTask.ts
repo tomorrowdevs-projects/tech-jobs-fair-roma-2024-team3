@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { create, deleteById, findAll, findAllByUserIdAndDate, updateById } from "../api/task";
+import { create, deleteById, findAll, getUserTasksByDate, updateById } from "../api/task";
 import { TaskRequest } from "../types";
 import { z } from "zod";
 
@@ -22,7 +22,7 @@ const useTask = () => {
     const findTasksByUserAndDate = async (userId: number, date: Date) => {
         try {
             setLoading(true)
-            const { data } = await findAllByUserIdAndDate(userId, date);
+            const { data } = await getUserTasksByDate(userId, date);
             setLoading(false)
             return data
         } catch (err) {
