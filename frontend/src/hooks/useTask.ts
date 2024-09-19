@@ -47,7 +47,6 @@ const useTask = () => {
     }
 
     const createTask = async (task: TaskRequest) => {
-        console.log(task);
         
         try {
             setLoading(true)
