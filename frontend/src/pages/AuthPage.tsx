@@ -7,7 +7,6 @@ import Spinner from '../components/Spinner';
 import { useNavigate } from 'react-router-dom';
 import Input from '../components/Input';
 import { PiEyeBold, PiEyeClosed } from 'react-icons/pi';
-import Logo from "/Team3.svg"
 
 const AuthPage: React.FC = () => {
     const [isLogin, setIsLogin] = useState(true);
