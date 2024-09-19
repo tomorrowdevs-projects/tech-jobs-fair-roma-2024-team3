@@ -26,11 +26,16 @@ const HomePage = () => {
   const { user, login, loading, logout } = useAuth();
   const navigate = useNavigate();
   const [startDate, setStartDate] = useState<Date>(new Date());
-  const [selectedDate, setSelectedDate] = useState<Date>(startDate);
+  const addOneHour = ()=> { 
+    const plusOne =  new Date();
+    plusOne.setHours(new Date().getHours() + 1);
+    return plusOne;
+  }
+  const [selectedDate, setSelectedDate] = useState<Date>(addOneHour);
   const [taskRequest, setTaskRequest] = useState<TaskRequest>({
     name: "",
     userId: 0,
-    date: selectedDate ?? new Date().setHours(new Date().getHours() + 1),
+    date: selectedDate ?? addOneHour,
     done: false,
     repeat: "None",
   });
@@ -238,8 +243,8 @@ const HomePage = () => {
               </div>
             </div>
           }
-          <div onClick={() => setIsChartOpen((prev) => !prev)} className="flex justify-start items-center p-4 pb-0">
-            <p className="italic underline text-blue-500 cursor-pointer">{!isChartOpen ? 'Show' : 'Hide'} charts</p>
+          <div onClick={() => setIsChartOpen((prev) => !prev)} className="flex items-center justify-start p-4 pb-0">
+            <p className="italic text-blue-500 underline cursor-pointer">{!isChartOpen ? 'Show' : 'Hide'} charts</p>
           </div>
           {isChartOpen ?
             <Charts /> :
@@ -255,7 +260,7 @@ const HomePage = () => {
                     deleteById={deleteById}
                   />
                 )) : taskLoading ?
-                  <div className="w-full flex justify-center items-center">
+                  <div className="flex items-center justify-center w-full">
                     <Spinner isInverted />
                   </div> :
                   <p className="w-full text-center">No tasks for this day</p>
