@@ -102,6 +102,7 @@ const HomePage = () => {
     }, [selectedDate])
 
     const handleInput = (field: string, value: string) => {
+      value= value.trim();
         setError(null)
         setTaskRequest(prevDetails => ({
             ...prevDetails,
