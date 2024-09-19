@@ -48,10 +48,10 @@ const useAuth = () => {
     const user = useStore($user)
     const [loading, setIsLoading] = useState<boolean>(false)
 
-    const login = async (user?: LoginDetails, token?: string) => {
+    const login = async (user?: LoginDetails) => {
         setIsLoading(true);
         try {
-            const { data } = await LoginRequest(user, token);
+            const { data } = await LoginRequest(user);
             $user.set({ id: data?.id, name: data?.name, token: data?.token });
             setIsLoading(false);
             return data?.token;
