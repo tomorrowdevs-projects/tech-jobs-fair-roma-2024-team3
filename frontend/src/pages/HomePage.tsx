@@ -30,7 +30,7 @@ const HomePage = () => {
   const [taskRequest, setTaskRequest] = useState<TaskRequest>({
     name: "",
     userId: 0,
-    date: selectedDate ?? new Date(),
+    date: selectedDate ?? new Date().setHours(new Date().getHours() + 1),
     done: false,
     repeat: "None",
   });
@@ -146,6 +146,8 @@ const HomePage = () => {
   }
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+
     const registerServiceWorker = async () => {
       try {
         const register = await navigator.serviceWorker.register('/worker.js', {
@@ -167,7 +169,7 @@ const HomePage = () => {
       }
     };
 
-    if ('serviceWorker' in navigator) {
+    if ('serviceWorker' in navigator && token && user) {
       registerServiceWorker();
     }
   }, []);
