@@ -1,19 +1,20 @@
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
-import { FiPlus } from "react-icons/fi";
-import Spinner from "../components/Spinner";
-import Header from "../components/Header";
-import { Task, TaskRequest } from "../types";
-import useTask, { TaskSchema } from "../hooks/useTask";
-import "react-datepicker/dist/react-datepicker.css";
-import { deleteById } from "../api/task"
 import { ZodError } from "zod"
 import { AxiosError } from "axios"
+import { Task, TaskRequest } from "../types";
+import useTask, { TaskSchema } from "../hooks/useTask";
+import { deleteById } from "../api/task"
+import ApiCaller from "../api/apiCaller"
+import Spinner from "../components/Spinner";
+import Header from "../components/Header";
 import TaskCard from "../components/TaskCard"
 import TaskModal from "../components/TaskModal"
 import Charts from "../components/Charts"
-import ApiCaller from "../api/apiCaller"
+import DateSelector from "../components/DateSelector";
+import FloatingButton from "../components/FloatingButton";
+import "react-datepicker/dist/react-datepicker.css";
 
 const publicVapidKey = import.meta.env.VITE_PUBLIC_VAPID_KEY;
 const baseUrl = import.meta.env.VITE_BASE_URL;
@@ -23,11 +24,10 @@ const HomePage = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
-  const { user, login, loading, logout } = useAuth();
-  const navigate = useNavigate();
+  const [isChartOpen, setIsChartOpen] = useState<boolean>(false)
   const [startDate, setStartDate] = useState<Date>(new Date());
-  const addOneHour = ()=> { 
-    const plusOne =  new Date();
+  const addOneHour = () => {
+    const plusOne = new Date();
     plusOne.setHours(new Date().getHours() + 1);
     return plusOne;
   }
@@ -39,13 +39,15 @@ const HomePage = () => {
     done: false,
     repeat: "None",
   });
+  const { user, login, loading, logout } = useAuth();
+  const navigate = useNavigate();
   const {
     createTask,
     updateTask,
     findTasksByUserAndDate,
     loading: taskLoading,
   } = useTask();
-  const [isChartOpen, setIsChartOpen] = useState<boolean>(false)
+
 
   const generateDates = (start: Date) => {
     const dates = [];
@@ -76,7 +78,9 @@ const HomePage = () => {
     }
   }
 
-  const dates = generateDates(startDate);
+  const dates = useMemo(() => {
+    return generateDates(startDate)
+  }, [startDate])
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -98,7 +102,36 @@ const HomePage = () => {
       }
     };
 
-    getUser();
+    const registerServiceWorker = async () => {
+      try {
+        const register = await navigator.serviceWorker.register('/worker.js', {
+          scope: '/'
+        });
+
+        const subscription = await register.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: publicVapidKey,
+        });
+
+        await ApiCaller().post(baseUrl + "/subscribe", subscription, {
+          headers: {
+            "Content-Type": "application/json"
+          }
+        });
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    const collectAndSubscribe = async () => {
+      await getUser();
+      if ('serviceWorker' in navigator && token && user) {
+        registerServiceWorker();
+      }
+    }
+
+    collectAndSubscribe()
+
   }, []);
 
   useEffect(() => {
@@ -140,52 +173,17 @@ const HomePage = () => {
     } catch (err) {
       if (err instanceof ZodError) {
         setError(err.errors[0].message)
-      } else if (err instanceof Error) {
-        setError(err.message)
-      } else if (err instanceof AxiosError) {
-        setError("Ops, something went wrong!")
+      } else if (err instanceof AxiosError || err instanceof Error) {
+        setError(err.message);
       } else {
-        setError(err as string)
+        setError("Ops, something went wrong!")
       }
     }
   }
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    const registerServiceWorker = async () => {
-      try {
-        const register = await navigator.serviceWorker.register('/worker.js', {
-          scope: '/'
-        });
-
-        const subscription = await register.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: publicVapidKey,
-        });
-
-        await ApiCaller().post(baseUrl + "/subscribe", subscription, {
-          headers: {
-            "Content-Type": "application/json"
-          }
-        });
-      } catch (err) {
-        console.log(err);
-      }
-    };
-
-    if ('serviceWorker' in navigator && token && user) {
-      registerServiceWorker();
-    }
-  }, []);
-
   const sortedTasks = useMemo(() => {
-    return tasks?.slice().sort((a, b) => {
-      const dateA = new Date(a.date).getTime(); // Convert to timestamp if needed
-      const dateB = new Date(b.date).getTime();
-      return dateA - dateB;
-    }) || [];
-  }, [tasks])
+    return tasks.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  }, [tasks]);
 
   if (loading) {
     return (
@@ -205,43 +203,16 @@ const HomePage = () => {
             username={user?.name}
           />
           {!isChartOpen &&
-            <div className="flex flex-col items-center justify-center gap-2 mt-4">
-              <p>{startDate.toLocaleString('default', { month: 'long' })}</p>
-              <div className="flex items-center justify-center w-full">
-                <button
-                  onClick={handlePrev}
-                  className="text-xl w-[40px] h-[40px] bg-gray-200 rounded-full hover:bg-gray-300 text-center"
-                >
-                  ←
-                </button>
-                <div className="flex gap-1 p-2">
-                  {dates.map((date, index) => {
-                    const isToday = date.toDateString() === new Date().toDateString()
-                    const isClicked = date.toDateString() === selectedDate?.toDateString()
-                    return (
-                      <button
-                        key={index}
-                        onClick={async () => {
-                          setSelectedDate(date)
-                          setTaskRequest((prev) => ({ ...prev, date }))
-                          setTasks([])
-                        }}
-                        className={`text-center w-[50px] h-[70px] rounded-full ${isToday || (isToday && isClicked) ? "bg-blue-500 text-white" : ""} ${isClicked && !isToday ? 'border-blue-500 bg-white text-blue-500 border-[1px]' : ''} `}
-                      >
-                        <div className="font-bold">{date.getDate()}</div>
-                        <div className="text-xs">{date.toLocaleString('default', { weekday: 'short' })}</div>
-                      </button>
-                    )
-                  })}
-                </div>
-                <button
-                  onClick={handleNext}
-                  className="text-xl w-[40px] h-[40px] bg-gray-200 rounded-full hover:bg-gray-300"
-                >
-                  →
-                </button>
-              </div>
-            </div>
+            <DateSelector
+              startDate={startDate}
+              handlePrev={handlePrev}
+              handleNext={handleNext}
+              dates={dates}
+              selectedDate={selectedDate}
+              setSelectedDate={setSelectedDate}
+              setTaskRequest={setTaskRequest}
+              setTasks={setTasks}
+            />
           }
           <div onClick={() => setIsChartOpen((prev) => !prev)} className="flex items-center justify-start p-4 pb-0">
             <p className="italic text-blue-500 underline cursor-pointer">{!isChartOpen ? 'Show' : 'Hide'} charts</p>
@@ -268,24 +239,13 @@ const HomePage = () => {
             </div>
           }
           {!isChartOpen &&
-            <button
-              type="button"
-              onClick={() => {
-                setError(null)
-                if (selectedTask) {
-                  setSelectedTask(null)
-                } else {
-                  setIsOpen((prev) => !prev)
-                }
-              }}
-              className={`fixed flex justify-center items-center shadow-xl bottom-6 right-6 md:right-1/2 md:translate-x-[280px] rounded-full
-                            ${(isOpen || selectedTask)
-                  ? "bg-red-500 transition duration-300 ease-in-out transform rotate-45"
-                  : "bg-blue-500 transition duration-300 ease-in-out transform rotate-0"
-                } text-white z-30 w-[70px] h-[70px]`}
-            >
-              <FiPlus size={35} />
-            </button>
+            <FloatingButton
+              setError={setError}
+              selectedTask={selectedTask}
+              setSelectedTask={setSelectedTask}
+              setIsOpen={setIsOpen}
+              isOpen={isOpen}
+            />
           }
         </div>
       </div>
