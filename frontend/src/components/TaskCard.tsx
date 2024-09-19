@@ -32,8 +32,8 @@ const TaskCard = ({ task, setSelectedTask, updateTask, setTasks, deleteById }: P
             e.stopPropagation()
             deleteById(task.id)
             setTasks((prevTasks: Task[]) =>
-                prevTasks?.filter(task =>
-                    task.id !== task.id
+                prevTasks?.filter(prevTask =>
+                    prevTask.id !== task.id
                 )
             );
         }}>
