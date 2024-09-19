@@ -65,106 +65,106 @@ const HomePage = () => {
     setStartDate(newStartDate);
   };
 
-    const getTasks = async () => {
-        if (user?.id) {
-            const tasks = await findTasksByUserAndDate(user.id, selectedDate)
-            setTasks(tasks ?? [])
-        }
+  const getTasks = async () => {
+    if (user?.id) {
+      const tasks = await findTasksByUserAndDate(user.id, selectedDate)
+      setTasks(tasks ?? [])
     }
+  }
 
-    const dates = generateDates(startDate);
+  const dates = generateDates(startDate);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
 
-        const getUser = async () => {
-            if (token && !user) {
-                try {
-                    const newToken = await login(undefined, token);
-                    localStorage.setItem("token", newToken)
-                    getTasks()
-                } catch (err) {
-                    console.log(err)
-                    localStorage.removeItem("token")
-                    navigate("/")
-                }
-            }
-            if (!token || !user) {
-                navigate("/");
-            }
-        };
-
-        getUser();
-    }, []);
-
-    useEffect(() => {
-        getTasks()
-    }, [selectedDate])
-
-    const handleInput = (field: string, value: string) => {
-      value= value.trim();
-        setError(null)
-        setTaskRequest(prevDetails => ({
-            ...prevDetails,
-            [field]: value
-        }));
+    const getUser = async () => {
+      if (token && !user) {
+        try {
+          const newToken = await login(undefined, token);
+          localStorage.setItem("token", newToken)
+          getTasks()
+        } catch (err) {
+          console.log(err)
+          localStorage.removeItem("token")
+          navigate("/")
+        }
+      }
+      if (!token || !user) {
+        navigate("/");
+      }
     };
 
-    const handleSubmit = async () => {
-        try {          
-            TaskSchema.parse(taskRequest)
-            if (!selectedTask) {
-                const task = await createTask({ ...taskRequest, userId: user?.id as number })
-                setTasks((prevTasks) => [...(prevTasks?.length ? prevTasks : []), task]);
-                setIsOpen(false)
-            } else {
-                const updatedTask = await updateTask({ ...taskRequest, id: selectedTask?.id as number, userId: user?.id as number })
-                setSelectedTask(null)
-                setTasks((prevTasks) =>
-                    prevTasks?.map(task =>
-                        task.id === updatedTask.id ? { ...task, ...updatedTask } : task
-                    )
-                );
-            }
-        } catch (err) {
-            if (err instanceof ZodError) {
-                setError(err.errors[0].message)
-            } else if (err instanceof Error) {
-                setError(err.message)
-            } else if (err instanceof AxiosError) {
-                setError("Ops, something went wrong!")
-            } else {
-                setError(err as string)
-            }
-        }
+    getUser();
+  }, []);
+
+  useEffect(() => {
+    getTasks()
+  }, [selectedDate])
+
+  const handleInput = (field: string, value: string) => {
+    value = value.trim();
+    setError(null)
+    setTaskRequest(prevDetails => ({
+      ...prevDetails,
+      [field]: value
+    }));
+  };
+
+  const handleSubmit = async () => {
+    try {
+      TaskSchema.parse(taskRequest)
+      if (!selectedTask) {
+        const task = await createTask({ ...taskRequest, userId: user?.id as number })
+        setTasks((prevTasks) => [...(prevTasks?.length ? prevTasks : []), task]);
+        setIsOpen(false)
+      } else {
+        const updatedTask = await updateTask({ ...taskRequest, id: selectedTask?.id as number, userId: user?.id as number })
+        setSelectedTask(null)
+        setTasks((prevTasks) =>
+          prevTasks?.map(task =>
+            task.id === updatedTask.id ? { ...task, ...updatedTask } : task
+          )
+        );
+      }
+    } catch (err) {
+      if (err instanceof ZodError) {
+        setError(err.errors[0].message)
+      } else if (err instanceof Error) {
+        setError(err.message)
+      } else if (err instanceof AxiosError) {
+        setError("Ops, something went wrong!")
+      } else {
+        setError(err as string)
+      }
     }
+  }
 
-    useEffect(() => {
-        const registerServiceWorker = async () => {
-            try {
-                const register = await navigator.serviceWorker.register('/worker.js', {
-                    scope: '/'
-                });
+  useEffect(() => {
+    const registerServiceWorker = async () => {
+      try {
+        const register = await navigator.serviceWorker.register('/worker.js', {
+          scope: '/'
+        });
 
-                const subscription = await register.pushManager.subscribe({
-                    userVisibleOnly: true,
-                    applicationServerKey: publicVapidKey,
-                });
+        const subscription = await register.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: publicVapidKey,
+        });
 
-                await ApiCaller().post(baseUrl + "/subscribe", subscription, {
-                    headers: {
-                        "Content-Type": "application/json"
-                    }
-                });
-            } catch (err) {
-                console.log(err);
-            }
-        };
+        await ApiCaller().post(baseUrl + "/subscribe", subscription, {
+          headers: {
+            "Content-Type": "application/json"
+          }
+        });
+      } catch (err) {
+        console.log(err);
+      }
+    };
 
-        if ('serviceWorker' in navigator) {
-            registerServiceWorker();
-        }
-    }, []);
+    if ('serviceWorker' in navigator) {
+      registerServiceWorker();
+    }
+  }, []);
 
   if (loading) {
     return (
@@ -204,17 +204,15 @@ const HomePage = () => {
                       onClick={() => {
                         setSelectedDate(date);
                         setTaskRequest((prev) => ({ ...prev, date }));
-                        
+
                       }}
-                      className={`text-center w-[50px] h-[70px] rounded-full ${
-                        isToday || (isToday && isClicked)
+                      className={`text-center w-[50px] h-[70px] rounded-full ${isToday || (isToday && isClicked)
                           ? "bg-blue-500 text-white"
                           : ""
-                      } ${
-                        isClicked && !isToday
+                        } ${isClicked && !isToday
                           ? "border-blue-500 bg-white text-blue-500 border-[1px]"
                           : ""
-                      } `}
+                        } `}
                     >
                       <div className="font-bold">{date.getDate()}</div>
                       <div className="text-xs">
@@ -238,11 +236,10 @@ const HomePage = () => {
                 <div
                   key={t.id}
                   onClick={() => setSelectedTask(t)}
-                  className={`${
-                    t.done
+                  className={`${t.done
                       ? "line-through bg-blue-500 text-white"
                       : "bg-white border-blue-500 text-blue-500"
-                  } font-medium p-4 w-full border-[1px] rounded-md shadow-lg mt-4 cursor-pointer flex justify-between items-center`}
+                    } font-medium p-4 w-full border-[1px] rounded-md shadow-lg mt-4 cursor-pointer flex justify-between items-center`}
                 >
                   <div className="flex items-center justify-center gap-4">
                     <div
@@ -289,11 +286,10 @@ const HomePage = () => {
               }
             }}
             className={`fixed flex justify-center items-center shadow-xl bottom-6 right-6 md:right-1/2 md:translate-x-[280px] rounded-full
-                            ${
-                              isOpen || selectedTask
-                                ? "bg-red-500 transition duration-300 ease-in-out transform rotate-45"
-                                : "bg-blue-500 transition duration-300 ease-in-out transform rotate-0"
-                            } text-white z-30 w-[70px] h-[70px]`}
+                            ${isOpen || selectedTask
+                ? "bg-red-500 transition duration-300 ease-in-out transform rotate-45"
+                : "bg-blue-500 transition duration-300 ease-in-out transform rotate-0"
+              } text-white z-30 w-[70px] h-[70px]`}
           >
             <FiPlus size={35} />
           </button>
