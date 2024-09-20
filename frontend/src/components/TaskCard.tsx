@@ -7,9 +7,10 @@ interface Props {
     updateTask: (task: Task) => void
     setTasks: (tasks: (prevTasks: Task[]) => Task[]) => void
     deleteTask: (taskId: number) => void
+    findTasks: () => void
 }
 
-const TaskCard = ({ task, setSelectedTask, updateTask, setTasks, deleteTask }: Props) => (
+const TaskCard = ({ task, setSelectedTask, updateTask, setTasks, deleteTask, findTasks }: Props) => (
     <div onClick={() => setSelectedTask(task)} className={`${task.done ? "line-through bg-blue-500 text-white" : "bg-white border-blue-500 text-blue-500"} font-medium p-4 w-full border-[1px] rounded-md shadow-lg mt-4 cursor-pointer flex justify-between items-center`}>
         <div className="flex justify-center items-center gap-4">
             <div
@@ -18,6 +19,7 @@ const TaskCard = ({ task, setSelectedTask, updateTask, setTasks, deleteTask }: P
                     e.stopPropagation()
                     const completedTask = { ...task, done: !task.done }
                     updateTask(completedTask)
+                    findTasks()
                     setTasks((prevTasks: Task[]) =>
                         prevTasks?.map(prevTasks =>
                             prevTasks.id === completedTask.id ? { ...task, ...completedTask } : prevTasks
@@ -31,6 +33,7 @@ const TaskCard = ({ task, setSelectedTask, updateTask, setTasks, deleteTask }: P
         <button onClick={async (e) => {
             e.stopPropagation()
             deleteTask(task.id)
+            findTasks()
             setTasks((prevTasks: Task[]) =>
                 prevTasks?.filter(prevTask =>
                     prevTask.id !== task.id
