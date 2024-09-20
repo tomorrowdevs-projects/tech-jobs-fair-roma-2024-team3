@@ -6,10 +6,10 @@ interface Props {
     setSelectedTask: (t: Task) => void
     updateTask: (task: Task) => void
     setTasks: (tasks: (prevTasks: Task[]) => Task[]) => void
-    deleteTask: (taskId: number) => void
+    deleteById: (taskId: number) => void
 }
 
-const TaskCard = ({ task, setSelectedTask, updateTask, setTasks, deleteTask }: Props) => (
+const TaskCard = ({ task, setSelectedTask, updateTask, setTasks, deleteById }: Props) => (
     <div onClick={() => setSelectedTask(task)} className={`${task.done ? "line-through bg-blue-500 text-white" : "bg-white border-blue-500 text-blue-500"} font-medium p-4 w-full border-[1px] rounded-md shadow-lg mt-4 cursor-pointer flex justify-between items-center`}>
         <div className="flex justify-center items-center gap-4">
             <div
@@ -26,11 +26,11 @@ const TaskCard = ({ task, setSelectedTask, updateTask, setTasks, deleteTask }: P
                 }}
             />
             <p>{task.name}</p>
-            <p>{`${new Date(task?.date)?.toLocaleTimeString('default', { hour: '2-digit', minute: '2-digit' })}`}</p>
+            <p>{`${new Date(task?.date)?.getHours()}:${new Date(task?.date)?.getMinutes()}`}</p>
         </div>
         <button onClick={async (e) => {
             e.stopPropagation()
-            deleteTask(task.id)
+            deleteById(task.id)
             setTasks((prevTasks: Task[]) =>
                 prevTasks?.filter(prevTask =>
                     prevTask.id !== task.id

@@ -23,11 +23,9 @@ router.post("/signup", validateEmailMiddleware, isExistingEmailMiddleware, async
 // User login
 router.post("/login", async (req, res) => {
   try {
-    const { email, password, token } = req.body;
+    const { email, password } = req.body;
     let user;
-    if (token) {
-      user = jwt.verify(token, "hackathon-rome-2024");
-    } else {
+    if (email && password) {
       user = await User.findOne({ where: { email } });
       if (!user) {
         return res.status(401).json({ error: "Authentication failed" });
@@ -36,6 +34,9 @@ router.post("/login", async (req, res) => {
       if (!passwordMatch) {
         return res.status(401).json({ error: "Authentication failed" });
       }
+    } else {
+      const token = req.header("Authorization");
+      user = jwt.verify(token, "hackathon-rome-2024");
     }
     const responseToken = jwt.sign({ id: user.id, name: user.name, email: user.email }, "hackathon-rome-2024", {
       expiresIn: "1h",

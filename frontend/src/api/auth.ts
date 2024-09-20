@@ -6,8 +6,8 @@ const baseUrl = import.meta.env.VITE_BASE_URL
 const loginUrl = baseUrl + "/auth/login"
 const signupUrl = baseUrl + "/auth/signup"
 
-export const login = async (loginRequest?: LoginDetails, token?: string) => {
-    return await ApiCaller().post(loginUrl, loginRequest ?? { token })
+export const login = async (loginRequest?: LoginDetails) => {
+    return await ApiCaller().post(loginUrl, loginRequest)
 }
 
 export const signup = async (signupRequest: SignUpDetails) => {
