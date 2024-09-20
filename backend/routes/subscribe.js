@@ -15,12 +15,10 @@ let subscriptions = [];
 
 // Endpoint per iscrizione alle notifiche
 router.post("/", (req, res) => {
+  if (subscriptions.find((sub) => sub.endpoint === req.body.endpoint)) {
+    return res.status(200).json({});
+  }
   subscriptions.push(req.body);
-  const payload = JSON.stringify({ title: "Habits tracker", body: "La tua prima notifica" });
-
-  subscriptions.forEach((subscription) => {
-    webpush.sendNotification(subscription, payload).catch(console.log);
-  });
   res.status(201).json({});
 });
 

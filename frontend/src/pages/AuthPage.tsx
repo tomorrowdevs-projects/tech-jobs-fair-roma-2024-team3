@@ -69,7 +69,7 @@ const AuthPage: React.FC = () => {
 
     return (
         <div className="min-h-screen relative flex flex-col justify-center items-center p-4">
-            <img src={Logo} className='absolute top-0 md:w-[130px] w-[90px] rounded-full md:m-[50px] m-[30px]' />
+            <img src={Logo} className='relative md:w-[100px] w-[90px] rounded-full md:m-[50px] m-[30px]' />
             <div className="bg-white rounded-lg shadow-lg w-full p-4 max-w-[600px]">
                 <form
                     onMouseDown={e => e.stopPropagation()}
