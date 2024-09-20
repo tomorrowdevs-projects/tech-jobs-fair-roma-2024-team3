@@ -233,6 +233,7 @@ const HomePage = () => {
                     updateTask={updateTask}
                     setTasks={setTasks}
                     deleteTask={deleteTask}
+                    findTasks={findTasks}
                   />
                 )) : taskLoading ?
                   <div className="flex items-center justify-center w-full">
