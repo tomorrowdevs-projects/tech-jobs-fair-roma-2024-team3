@@ -15,11 +15,20 @@ const useTask = () => {
     const [loading, setLoading] = useState<boolean>(false)
 
     const findTasks = async () => {
-        const { data } = await findAll();
-        return data
+
+        try {
+            setLoading(true)
+            const { data } = await findAll();
+            setLoading(false)
+            return data
+        } catch (err) {
+            setLoading(false)
+            throw err
+        }
     }
 
     const findTasksByUserAndDate = async (userId: number, date: Date) => {
+
         try {
             setLoading(true)
             const { data } = await getUserTasksByDate(userId, date);
@@ -29,7 +38,6 @@ const useTask = () => {
             setLoading(false)
             throw err
         }
-
     }
 
     const updateTask = async (task: TaskRequest) => {
