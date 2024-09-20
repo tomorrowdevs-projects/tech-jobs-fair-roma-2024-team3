@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { create, deleteById, findAll, getUserTasksByDate, updateById } from "../api/task";
-import { TaskRequest } from "../types";
+import { Task, TaskRequest } from "../types";
 import { z } from "zod";
+import { atom } from "nanostores";
+import { useStore } from "@nanostores/react";
+
+export const $allTasks = atom<Task[]>([])
 
 export const TaskSchema = z.object({
     name: z.string()
@@ -13,12 +17,14 @@ export const TaskSchema = z.object({
 
 const useTask = () => {
     const [loading, setLoading] = useState<boolean>(false)
+    const allTasks = useStore($allTasks)
 
     const findTasks = async () => {
 
         try {
             setLoading(true)
             const { data } = await findAll();
+            $allTasks.set(data)
             setLoading(false)
             return data
         } catch (err) {
@@ -77,6 +83,7 @@ const useTask = () => {
         updateTask,
         createTask,
         deleteTask,
+        allTasks,
         loading
     }
 }

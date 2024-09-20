@@ -1,92 +1,72 @@
 import { Bar, BarChart, CartesianGrid, Line, LineChart, Pie, PieChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
 import { Task } from "../types";
+import { useMemo } from "react";
 
-// interface Props {
-//     data: []
-// }
+interface BarChartData {
+    name: string
+    repetitions: number
+    completed: number
+}
 
-const barChartData = [
-    {
-        name: 'Studying',
-        repetitions: 3,
-        completed: 1
-    },
-    {
-        name: 'Coding',
-        repetitions: 4,
-        completed: 7
-    },
-    {
-        name: 'Drink Water',
-        repetitions: 3,
-        completed: 2
-    },
-    {
-        name: 'Playing',
-        repetitions: 5,
-        completed: 9
-    },
-    {
-        name: 'Eating',
-        repetitions: 4,
-        completed: 2
-    },
-];
+interface LineChartData {
+    name: string;
+    registered: number;
+    date: string; // Format: DD/MM
+}
 
-//this array needs to be sorted by date
-const lineChartData = [
-    {
-        name: 'Studying',
-        registered: 3,
-        date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit' })
-    },
-    {
-        name: 'Coding',
-        registered: 4,
-        date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit' })
-    },
-    {
-        name: 'Drink Water',
-        registered: 3,
-        date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit' })
-    },
-    {
-        name: 'Playing',
-        registered: 5,
-        date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit' })
-    },
-    {
-        name: 'Eating',
-        registered: 4,
-        date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit' })
-    },
-];
-
-const pieChartData = [
-    {
-        name: 'Studying',
-        repeated: 4
-    },
-    {
-        name: 'Coding',
-        repeated: 2
-    },
-    {
-        name: 'Drink Water',
-        repeated: 5
-    },
-    {
-        name: 'Playing',
-        repeated: 3
-    },
-    {
-        name: 'Eating',
-        repeated: 8
-    },
-];
+interface PieChartData {
+    name: string;
+    repeated: number;
+}
 
 const Charts = ({ allTasks }: { allTasks: Task[] }) => {
-    console.log(allTasks)
+    const barChartData: BarChartData[] = useMemo(() => {
+        const taskMap = allTasks.reduce<Record<string, BarChartData>>((acc, task) => {
+            const { name, done } = task;
+            if (!acc[name]) {
+                acc[name] = { name, repetitions: 0, completed: 0 };
+            }
+            acc[name].repetitions += 1;
+            if (done) {
+                acc[name].completed += 1;
+            }
+            return acc;
+        }, {});
+
+        return Object.values(taskMap);
+    }, [allTasks]);
+
+    const lineChartData: LineChartData[] = useMemo(() => {
+        const taskMap = allTasks.reduce<Record<string, LineChartData>>((acc, task) => {
+            const { name, date } = task;
+            const formattedDate = new Date(date).toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: '2-digit',
+            });
+            const key = `${name}-${formattedDate}`;
+            if (!acc[key]) {
+                acc[key] = { name, registered: 0, date: formattedDate };
+            }
+            acc[key].registered += 1;
+
+            return acc;
+        }, {});
+        return Object.values(taskMap);
+    }, [allTasks]);
+
+    const pieChartData: PieChartData[] = useMemo(() => {
+        const taskMap = allTasks.reduce<Record<string, PieChartData>>((acc, task) => {
+            const { name } = task;
+            if (!acc[name]) {
+                acc[name] = { name, repeated: 0 };
+            }
+            acc[name].repeated += 1;
+            return acc;
+        }, {});
+
+        return Object.values(taskMap);
+    }, [allTasks]);
+
     return (
         <div className="flex flex-col justify-center md:items-center items-start w-full pb-4">
             <p className="text-center w-full">Done vs Undone</p>

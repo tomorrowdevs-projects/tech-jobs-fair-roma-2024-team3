@@ -22,7 +22,6 @@ const HomePage = () => {
   const [error, setError] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [allTasks, setAllTasks] = useState<Task[]>([])
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isChartOpen, setIsChartOpen] = useState<boolean>(false)
   const [startDate, setStartDate] = useState<Date>(new Date());
@@ -47,6 +46,7 @@ const HomePage = () => {
     findTasksByUserAndDate,
     deleteTask,
     findTasks,
+    allTasks,
     loading: taskLoading,
   } = useTask();
 
@@ -83,12 +83,6 @@ const HomePage = () => {
     }
   }
 
-  const getAllTasks = async () => {
-    const allUserTasks = await findTasks()
-    console.log(allUserTasks)
-    setAllTasks(allUserTasks ?? [])
-  }
-
   useEffect(() => {
     const token = localStorage.getItem("token");
 
@@ -98,7 +92,7 @@ const HomePage = () => {
           const newToken = await login();
           localStorage.setItem("token", newToken)
           await getTasks()
-          await getAllTasks()
+          findTasks()
         } catch (err) {
           console.log(err)
           localStorage.removeItem("token")
@@ -169,7 +163,7 @@ const HomePage = () => {
           done: false,
           repeat: "None",
         })
-        getAllTasks()
+        findTasks()
       } else {
         const updatedTask = await updateTask({ ...taskRequest, id: selectedTask?.id as number, userId: user?.id as number })
         setSelectedTask(null)
@@ -178,7 +172,7 @@ const HomePage = () => {
             task.id === updatedTask.id ? { ...task, ...updatedTask } : task
           )
         );
-        getAllTasks()
+        findTasks()
       }
     } catch (err) {
       if (err instanceof ZodError) {
